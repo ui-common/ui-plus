@@ -1,30 +1,14 @@
+import {isEmail, isIPv4, isIPv6, isUrl, isValidPattern, tel} from 'validation-util';
 import {formatter} from './formatter';
-import {ResourceService, ui, CurrencyService, Locale, LocaleService} from './ui';
-import {uivalidator} from './uivalidator';
-import {validator} from './validator';
+import {Locale, resources} from './resources';
+import {container, element, getLabel, trim} from './ui';
+import {addErrorMessage, checkMaxLength, checkMinLength, checkRequired, removeErrorMessage, validateElement} from './uivalidator';
 
 // tslint:disable-next-line:class-name
 export class uievent {
   // private static _ddreg = /\d/;
-  private static _dreg = /\.|-/g;
   private static _r1 = / |,|\$|€|£|¥|'|٬|،| /g;
   private static _r2 = / |\.|\$|€|£|¥|'|٬|،| /g;
-  private static _currencyService: CurrencyService = null;
-  private static _localeService: LocaleService = null;
-  private static _resourceService: ResourceService = null;
-  static setCurrencyService(currencyService: CurrencyService): void  {
-    ui.setCurrencyService(currencyService);
-    uivalidator.setCurrencyService(currencyService);
-    uievent._currencyService = currencyService;
-  }
-  static setLocaleService(localeService: LocaleService): void  {
-    uievent._localeService = localeService;
-  }
-  static setResourceService(resourceService: ResourceService): void  {
-    ui.setResourceService(resourceService);
-    uivalidator.setResourceService(resourceService);
-    uievent._resourceService = resourceService;
-  }
 /*
   static digitAndSlashOnKeyPress(e: any) {
     const keychar = e.key;
@@ -61,9 +45,9 @@ export class uievent {
       if (ctrl.nodeName === 'INPUT' || ctrl.nodeName === 'SELECT'
         || ctrl.classList.contains('form-control')
         || ctrl.parentElement.classList.contains('form-control')) {
-        const container = ui.getControlContainer(ctrl);
-        if (container && !container.classList.contains('focused')) {
-          container.classList.add('focused');
+        const c = container(ctrl);
+        if (c && !c.classList.contains('focused')) {
+          c.classList.add('focused');
         }
       }
     }, 0);
@@ -74,10 +58,10 @@ export class uievent {
       if (ctrl.nodeName === 'INPUT' || ctrl.nodeName === 'SELECT'
         || ctrl.classList.contains('form-control')
         || ctrl.parentElement.classList.contains('form-control')) {
-        const container = ui.getControlContainer(ctrl);
+        const c = container(ctrl);
         const disableHighlightFocus = ctrl.getAttribute('disable-style-on-focus');
-        if (container && !container.classList.contains('focused') && !disableHighlightFocus) {
-          container.classList.add('focused');
+        if (c && !c.classList.contains('focused') && !disableHighlightFocus) {
+          c.classList.add('focused');
         }
       }
     }, 0);
@@ -133,14 +117,14 @@ export class uievent {
     uievent.handleMaterialBlur(ctrl);
   }
 
-  static handleMaterialBlur(ctrl) {
+  static handleMaterialBlur(ctrl: any) {
     setTimeout(() => {
       if (ctrl.nodeName === 'INPUT' || ctrl.nodeName === 'SELECT'
         || ctrl.classList.contains('form-control')
         || ctrl.parentElement.classList.contains('form-control')) {
-        const container = ui.getControlContainer(ctrl);
-        if (container) {
-          container.classList.remove('focused');
+        const c = container(ctrl);
+        if (c) {
+          c.classList.remove('focused');
         }
       }
     }, 0);
@@ -178,7 +162,7 @@ export class uievent {
         c = currencyCode;
       }
       if (c) {
-        const currency = uievent._currencyService.getCurrency(c);
+        const currency = resources.currencyService.getCurrency(c);
         if (currency) {
           if (v.indexOf(currency.currencySymbol) >= 0) {
             v = v.replace(currency.currencySymbol, '');
@@ -212,7 +196,7 @@ export class uievent {
   }
 
   private static _formatCurrency(v: any, locale: Locale, currencyCode, includingCurrencySymbol: boolean): string {
-    return uievent._localeService.formatCurrency(v, currencyCode, locale, includingCurrencySymbol);
+    return resources.localeService.formatCurrency(v, currencyCode, locale, includingCurrencySymbol);
   }
 
   static validOnBlur(event: any) {
@@ -220,7 +204,7 @@ export class uievent {
     if (!ctrl || ctrl.readOnly || ctrl.disabled) {
       return;
     }
-    uivalidator.removeErrorMessage(ctrl);
+    removeErrorMessage(ctrl);
   }
   /*
   static requiredOnBlur(event: any) {
@@ -249,9 +233,9 @@ export class uievent {
       return;
     }
     setTimeout(() => {
-      ui.trim(ctrl);
-      if (!uivalidator.checkRequired(ctrl)) {
-        uivalidator.removeErrorMessage(ctrl);
+      trim(ctrl);
+      if (!checkRequired(ctrl)) {
+        removeErrorMessage(ctrl);
       }
     }, 40);
   }
@@ -259,22 +243,22 @@ export class uievent {
    * Check required by attribute, then check if this input is an valid email.
    */
   static emailOnBlur(event: any) {
-    uievent.checkOnBlur(event, 'error_email', validator.isEmail);
+    uievent.checkOnBlur(event, 'error_email', isEmail);
   }
   static urlOnBlur(event: any) {
-    uievent.checkOnBlur(event, 'error_url', validator.isUrl);
+    uievent.checkOnBlur(event, 'error_url', isUrl);
   }
   static ipv4OnBlur(event: any) {
-    uievent.checkOnBlur(event, 'error_ipv4', validator.isIPv4);
+    uievent.checkOnBlur(event, 'error_ipv4', isIPv4);
   }
   static ipv6OnBlur(event: any) {
-    uievent.checkOnBlur(event, 'error_ipv6', validator.isIPv6);
+    uievent.checkOnBlur(event, 'error_ipv6', isIPv6);
   }
   static phoneOnBlur(event: any) {
-    uievent.checkOnBlur(event, 'error_phone', validator.isPhone, formatter.removePhoneFormat);
+    uievent.checkOnBlur(event, 'error_phone', tel.isPhone, formatter.removePhoneFormat);
   }
   static faxOnBlur(event: any) {
-    uievent.checkOnBlur(event, 'error_fax', validator.isFax, formatter.removeFaxFormat);
+    uievent.checkOnBlur(event, 'error_fax', tel.isFax, formatter.removeFaxFormat);
   }
   static checkOnBlur(event: any, key: string, check: any, formatF?: any) {
     const ctrl = event.currentTarget;
@@ -282,20 +266,20 @@ export class uievent {
       return;
     }
     let value = ctrl.value;
-    uivalidator.removeErrorMessage(ctrl);
+    removeErrorMessage(ctrl);
     setTimeout(() => {
-      ui.trim(ctrl);
-      if (uivalidator.checkRequired(ctrl) || uivalidator.checkMinLength(ctrl) || uivalidator.checkMaxLength(ctrl)) {
+      trim(ctrl);
+      if (checkRequired(ctrl) || checkMinLength(ctrl) || checkMaxLength(ctrl)) {
         return;
       }
       if (formatF) {
         value = formatF(value);
       }
       if (value.length > 0 && !check(value)) {
-        const label = ui.getLabel(ctrl);
-        const r = uievent._resourceService;
+        const label = getLabel(ctrl);
+        const r = resources.resourceService;
         const msg = r.format(r.value(key), label);
-        uivalidator.addErrorMessage(ctrl, msg);
+        addErrorMessage(ctrl, msg);
       }
     }, 40);
   }
@@ -307,10 +291,10 @@ export class uievent {
     if (!ctrl || ctrl.readOnly || ctrl.disabled) {
       return;
     }
-    uivalidator.removeErrorMessage(ctrl);
+    removeErrorMessage(ctrl);
     setTimeout(() => {
-      ui.trim(ctrl);
-      if (uivalidator.checkRequired(ctrl)) {
+      trim(ctrl);
+      if (checkRequired(ctrl)) {
         return;
       }
       const value = ctrl.value;
@@ -322,11 +306,11 @@ export class uievent {
         }
         if (pattern) {
           const resource_key = ctrl.getAttribute('resource-key') || ctrl.getAttribute('config-pattern-error-key');
-          if (!validator.isValidPattern(pattern, patternModifier, value)) {
-            const label = ui.getLabel(ctrl);
-            const r = uievent._resourceService;
+          if (!isValidPattern(pattern, patternModifier, value)) {
+            const label = getLabel(ctrl);
+            const r = resources.resourceService;
             const msg = r.format(r.value(resource_key), label);
-            uivalidator.addErrorMessage(ctrl, msg);
+            addErrorMessage(ctrl, msg);
           }
         }
       }
@@ -343,12 +327,12 @@ export class uievent {
         const strNums = numFormat.split(':');
         if (strNums.length > 0 && uievent.isULong(strNums[1])) {
           const scale = parseInt(strNums[1], null);
-          return uievent._localeService.formatNumber(v, scale, locale);
+          return resources.localeService.formatNumber(v, scale, locale);
         } else {
           return v;
         }
       } else {
-        return uievent._localeService.format(v, numFormat, locale);
+        return resources.localeService.format(v, numFormat, locale);
       }
     } else {
       return v;
@@ -365,9 +349,9 @@ export class uievent {
       return;
     }
     this.materialOnBlur(event);
-    uivalidator.removeErrorMessage(ctrl);
+    removeErrorMessage(ctrl);
     setTimeout(() => {
-      ui.trim(ctrl);
+      trim(ctrl);
       const value = ctrl.value;
       let value2 = value;
       let c;
@@ -377,7 +361,7 @@ export class uievent {
           c = currencyCode;
         }
         if (c) {
-          const currency = uievent._currencyService.getCurrency(c);
+          const currency = resources.currencyService.getCurrency(c);
           if (currency && value2.indexOf(currency.currencySymbol) >= 0) {
             value2 = value2.replace(currency.currencySymbol, '');
           }
@@ -394,15 +378,15 @@ export class uievent {
       } else {
         value2 = value2.replace(uievent._r1, '');
       }
-      const label = ui.getLabel(ctrl);
-      if (uivalidator.checkRequired(ctrl, label)) {
+      const label = getLabel(ctrl);
+      if (checkRequired(ctrl, label)) {
         return;
       }
       if (value.length > 0) {
         if (isNaN(value2)) {
-          const r = uievent._resourceService;
+          const r = resources.resourceService;
           const msg = r.format(r.value('error_number'), label);
-          uivalidator.addErrorMessage(ctrl, msg);
+          addErrorMessage(ctrl, msg);
           return;
         }
         const n = parseFloat(value2);
@@ -416,7 +400,7 @@ export class uievent {
           if (r !== ctrl.value) {
             ctrl.value = r;
           }
-          uivalidator.removeErrorMessage(ctrl);
+          removeErrorMessage(ctrl);
         }
       }
     }, 40);
@@ -424,7 +408,7 @@ export class uievent {
 
   private static validateMinMax(ctrl: any, n: number, label: string, locale: Locale): boolean {
     let min = ctrl.getAttribute('min');
-    const r = uievent._resourceService;
+    const r = resources.resourceService;
     if (min !== null && min.length > 0) {
       min = parseFloat(min);
       if (n < min) {
@@ -436,7 +420,7 @@ export class uievent {
             msg = r.format(r.value('error_equal'), label, maxd);
           }
         }
-        uivalidator.addErrorMessage(ctrl, msg);
+        addErrorMessage(ctrl, msg);
         return false;
       }
     }
@@ -448,7 +432,7 @@ export class uievent {
         if (min && max === min) {
           msg = r.format(r.value('error_equal'), label, max);
         }
-        uivalidator.addErrorMessage(ctrl, msg);
+        addErrorMessage(ctrl, msg);
         return false;
       }
     }
@@ -456,7 +440,7 @@ export class uievent {
       if (minField) {
       const form = ctrl.form;
       if (form) {
-        const ctrl2 = ui.getControlFromForm(form, minField);
+        const ctrl2 = element(form, minField);
         if (ctrl2) {
           let smin2 = ctrl2.value; // const smin2 = ctrl2.value.replace(this._nreg, '');
           if (locale && locale.decimalSeparator !== '.') {
@@ -470,9 +454,9 @@ export class uievent {
           if (smin2.length > 0 && !isNaN(smin2)) {
             const min2 = parseFloat(smin2);
             if (n < min2) {
-              const minLabel = ui.getLabel(ctrl2);
+              const minLabel = getLabel(ctrl2);
               const msg = r.format(r.value('error_min'), label, minLabel);
-              uivalidator.addErrorMessage(ctrl, msg);
+              addErrorMessage(ctrl, msg);
               return false;
             }
           }
@@ -488,9 +472,9 @@ export class uievent {
       return;
     }
     setTimeout(() => {
-      ui.trim(ctrl);
-      uivalidator.removeErrorMessage(ctrl);
-      uivalidator.validateControl(ctrl, locale);
+      trim(ctrl);
+      removeErrorMessage(ctrl);
+      validateElement(ctrl, locale);
     }, 0);
   }
 /*

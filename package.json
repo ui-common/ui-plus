@@ -1,6 +1,6 @@
 {
   "name": "ui-plus",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "UI Utilities",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
@@ -12,12 +12,16 @@
     "tslint": "5.10.0",
     "typescript": "^3.3.3333"
   },
+  "peerDependencies": {
+    "reflectx": "^0.0.6",
+    "validation-util": "^0.0.3"
+  },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com/ui-common/uil"
+    "url": "git@github.com/common-ui/ui-plus"
   },
   "keywords": [
     "ui",

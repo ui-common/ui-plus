@@ -1,64 +1,30 @@
-import {reflect} from './reflect';
-import {ui, Locale} from './ui';
+import {Locale} from './resources';
+import {decodeFromForm, getValue} from './ui';
 import {uievent} from './uievent';
-import {uivalidator, ErrorMessage} from './uivalidator';
+import {buildErrorMessage, ErrorMessage, removeErrorMessage, removeFormError, showFormError, validateForm} from './uivalidator';
 
 export class DefaultUIService {
-  setValue(obj: any, key: string, value: any) {
-    reflect.setValue(obj, key, value);
-  }
-
   getValue(ctrl: any, locale?: Locale, currencyCode?: string): string|number|boolean {
-    return ui.getValue(ctrl, locale, currencyCode);
-  }
-  getControlFromForm(form: any, childName: string): any {
-    return ui.getControlFromForm(form, childName);
-  }
-  getControlContainer(ctrl: any): any {
-    return ui.getControlContainer(ctrl);
-  }
-  isEmpty(ctrl: any): boolean {
-    return ui.isEmpty(ctrl);
-  }
-  focusFirstControl(form: any): void {
-    ui.focusFirstControl(form);
-  }
-  focusErrorControl(form: any): void {
-    ui.focusErrorControl(form);
-  }
-  bindToForm(form: any, obj: any): void {
-    ui.bindToForm(form, obj);
+    return getValue(ctrl, locale, currencyCode);
   }
   decodeFromForm(form: any, locale: Locale, currencyCode: string): any {
-    return ui.decodeFromForm(form, locale, currencyCode);
-  }
-  setReadOnlyForm(form: any): void {
-    return ui.setReadOnlyForm(form);
-  }
-  getAllDataFields(form: any): any[] {
-    return ui.getAllDataFields(form);
+    return decodeFromForm(form, locale, currencyCode);
   }
 
   validateForm(form: any, locale: Locale, focusFirst?: boolean, scroll?: boolean): boolean {
-    return uivalidator.validateForm(form, locale, focusFirst, scroll);
-  }
-  validateControl(ctrl: any, locale: Locale): boolean {
-    return uivalidator.validateControl(ctrl, locale);
-  }
-  validateControls(controls: any, locale: Locale): boolean {
-    return uivalidator.validateControls(controls, locale);
+    return validateForm(form, locale, focusFirst, scroll);
   }
   removeFormError(form: any): void {
-    uivalidator.removeFormError(form);
+    removeFormError(form);
   }
   removeErrorMessage(ctrl: any): void {
-    uivalidator.removeErrorMessage(ctrl);
+    removeErrorMessage(ctrl);
   }
   showFormError(form: any, errors: ErrorMessage[], focusFirst?: boolean): ErrorMessage[] {
-    return uivalidator.showFormError(form, errors, focusFirst);
+    return showFormError(form, errors, focusFirst);
   }
   buildErrorMessage(errors: ErrorMessage[]): string {
-    return uivalidator.buildErrorMessage(errors);
+    return buildErrorMessage(errors);
   }
 
   initMaterial(form: any): void {
