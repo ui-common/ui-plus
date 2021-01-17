@@ -14,12 +14,12 @@ const _r3 = new RegExp('&', 'gi');
 const _r4 = new RegExp('>', 'gi');
 const _r5 = new RegExp('<', 'gi');
 
-export function isValidForm(form: any, focusFirst?: boolean, scroll?: boolean): boolean {
+export function isValidForm(form: HTMLFormElement, focusFirst?: boolean, scroll?: boolean): boolean {
   const valid = true;
   let i = 0;
   const len = form.length;
   for (i = 0; i < len; i++) {
-    const ctrl = form[i];
+    const ctrl = form[i] as HTMLInputElement;
     const parent = ctrl.parentElement;
     if (ctrl.classList.contains('invalid')
       || ctrl.classList.contains('ng-invalid')
@@ -38,13 +38,13 @@ export function isValidForm(form: any, focusFirst?: boolean, scroll?: boolean): 
   }
   return valid;
 }
-export function validateForm(form: any, locale: Locale, focusFirst?: boolean, scroll?: boolean): boolean {
+export function validateForm(form: HTMLFormElement, locale: Locale, focusFirst?: boolean, scroll?: boolean): boolean {
   let valid = true;
   let errorCtrl = null;
   let i = 0;
   const len = form.length;
   for (i = 0; i < len; i++) {
-    const ctrl = form[i];
+    const ctrl = form[i] as HTMLInputElement;
     let type = ctrl.getAttribute('type');
     if (type != null) {
       type = type.toLowerCase();
@@ -77,7 +77,7 @@ export function validateForm(form: any, locale: Locale, focusFirst?: boolean, sc
   }
   return valid;
 }
-export function showFormError(form: any, errors: ErrorMessage[], focusFirst?: boolean): ErrorMessage[] {
+export function showFormError(form: HTMLFormElement, errors: ErrorMessage[], focusFirst?: boolean): ErrorMessage[] {
   if (!errors || errors.length === 0) {
     return [];
   }
@@ -89,7 +89,7 @@ export function showFormError(form: any, errors: ErrorMessage[], focusFirst?: bo
   for (let i = 0; i < length; i++) {
     let hasControl = false;
     for (let j = 0; j < len; j++) {
-      const ctrl = form[j];
+      const ctrl = form[j] as HTMLInputElement;
       const dataField = ctrl.getAttribute('data-field');
       if (dataField === errors[i].field || ctrl.name === errors[i].field) {
         addErrorMessage(ctrl, errors[i].message);
@@ -112,7 +112,7 @@ export function showFormError(form: any, errors: ErrorMessage[], focusFirst?: bo
   }
   return errs;
 }
-export function validateElements(controls: any, locale: Locale): boolean {
+export function validateElements(controls: HTMLInputElement[], locale: Locale): boolean {
   let valid = true;
   let errorCtrl = null;
   for (const c of controls) {
@@ -131,7 +131,7 @@ export function validateElements(controls: any, locale: Locale): boolean {
   }
   return valid;
 }
-export function checkRequired(ctrl: any, label?: string): boolean {
+export function checkRequired(ctrl: HTMLInputElement, label?: string): boolean {
   const value = ctrl.value;
   let required = ctrl.getAttribute('config-required');
   if (required == null || required === undefined) {
@@ -155,9 +155,9 @@ export function checkRequired(ctrl: any, label?: string): boolean {
   }
   return false;
 }
-export function checkMaxLength(ctrl: any, label?: string): boolean {
+export function checkMaxLength(ctrl: HTMLInputElement, label?: string): boolean {
   const maxlength = ctrl.getAttribute('maxlength');
-  if (maxlength && !isNaN(maxlength)) {
+  if (maxlength && !isNaN(maxlength as any)) {
     const value = ctrl.value;
     const imaxlength = parseInt(maxlength, null);
     if (value.length > imaxlength) {
@@ -173,9 +173,9 @@ export function checkMaxLength(ctrl: any, label?: string): boolean {
   return false;
 }
 
-export function checkMinLength(ctrl: any, label?: string): boolean {
+export function checkMinLength(ctrl: HTMLInputElement, label?: string): boolean {
   const minlength = ctrl.getAttribute('minlength');
-  if (minlength !== null && !isNaN(minlength)) {
+  if (minlength !== null && !isNaN(minlength as any)) {
     const value = ctrl.value;
     const iminlength = parseInt(minlength, null);
     if (value.length < iminlength) {
@@ -190,7 +190,7 @@ export function checkMinLength(ctrl: any, label?: string): boolean {
   }
 }
 
-export function validateElement(ctrl: any, locale: Locale): boolean {
+export function validateElement(ctrl: HTMLInputElement, locale: Locale): boolean {
   if (!ctrl) {
     return true;
   }
@@ -241,7 +241,7 @@ export function validateElement(ctrl: any, locale: Locale): boolean {
     return false;
   }
   const minlength = ctrl.getAttribute('minlength');
-  if (minlength !== null && !isNaN(minlength)) {
+  if (minlength !== null && !isNaN(minlength as any)) {
     const iminlength = parseInt(minlength, null);
     if (value.length < iminlength) {
       const msg = r.format(r.value('error_minlength'), label, minlength);
@@ -309,7 +309,7 @@ export function validateElement(ctrl: any, locale: Locale): boolean {
     if (datatype2 === 'percentage' && value.indexOf('%') >= 0) {
       value = value.replace('%', '');
     }
-    if (isNaN(value)) {
+    if (isNaN(value as any)) {
       const msg = r.format(r.value('error_number'), label);
       addErrorMessage(ctrl, msg);
       return false;
@@ -320,14 +320,15 @@ export function validateElement(ctrl: any, locale: Locale): boolean {
       return false;
     }
     const n = parseFloat(value);
-    let min = ctrl.getAttribute('min');
-    if (min !== null && min.length > 0) {
-      min = parseFloat(min);
+    let smin = ctrl.getAttribute('min');
+    let min: number;
+    if (smin !== null && smin.length > 0) {
+      min = parseFloat(smin);
       if (n < min) {
         let msg = r.format(r.value('error_min'), label, min);
-        let maxd = ctrl.getAttribute('max');
-        if (maxd !== null && maxd.length > 0) {
-          maxd = parseFloat(maxd);
+        let smaxd = ctrl.getAttribute('max');
+        if (smaxd !== null && smaxd.length > 0) {
+          const maxd = parseFloat(smaxd);
           if (maxd === min) {
             msg = r.format(r.value('error_equal'), label, maxd);
           }
@@ -336,9 +337,9 @@ export function validateElement(ctrl: any, locale: Locale): boolean {
         return false;
       }
     }
-    let max = ctrl.getAttribute('max');
-    if (max !== null && max.length > 0) {
-      max = parseFloat(max);
+    let smax = ctrl.getAttribute('max');
+    if (smax !== null && smax.length > 0) {
+      const max = parseFloat(smax);
       if (n > max) {
         let msg = r.format(r.value('error_max'), label, max);
         if (!min && max === min) {
@@ -364,7 +365,7 @@ export function validateElement(ctrl: any, locale: Locale): boolean {
         } else {
           smin2 = smin2.replace(_r1, '');
         }
-        if (smin2.length > 0 && !isNaN(smin2)) {
+        if (smin2.length > 0 && !isNaN(smin2 as any)) {
           const min2 = parseFloat(smin2);
           if (n < min2) {
             const minLabel = getLabel(ctrl2);
@@ -520,7 +521,7 @@ export function validateElement(ctrl: any, locale: Locale): boolean {
   removeErrorMessage(ctrl);
   return true;
 }
-export function setValidControl(ctrl: any): void {
+export function setValidControl(ctrl: HTMLInputElement): void {
   if (!ctrl.classList.contains('valid')) {
     ctrl.classList.add('valid');
   }
@@ -543,7 +544,7 @@ export function setValidControl(ctrl: any): void {
     }
   }
 }
-export function addErrorMessage(ctrl: any, msg: string): void {
+export function addErrorMessage(ctrl: HTMLInputElement, msg: string): void {
   if (!ctrl) {
     return;
   }
@@ -580,17 +581,17 @@ export function addErrorMessage(ctrl: any, msg: string): void {
   }
 }
 
-export function removeFormError(form: any): void {
+export function removeFormError(form: HTMLFormElement): void {
   if (form) {
     const len = form.length;
     for (let i = 0; i < len; i++) {
-      const ctrl = form[i];
+      const ctrl = form[i] as HTMLInputElement;
       removeErrorMessage(ctrl);
     }
   }
 }
 
-export function removeErrorMessage(ctrl: any): void {
+export function removeErrorMessage(ctrl: HTMLInputElement): void {
   if (!ctrl) {
     return;
   }

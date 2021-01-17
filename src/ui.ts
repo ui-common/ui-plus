@@ -4,10 +4,10 @@ import {Locale, resources} from './resources';
 const _r1 = / |,|\$|€|£|¥|'|٬|،| /g;
 const _r2 = / |\.|\$|€|£|¥|'|٬|،| /g;
 
-export function getValue(ctrl: any, locale?: Locale, currencyCode?: string): string|number|boolean {
+export function getValue(ctrl: HTMLInputElement, locale?: Locale, currencyCode?: string): string|number|boolean {
   if (ctrl.type === 'checkbox') {
-    const ctrlOnValue = ctrl.getAttribute('data-onValue');
-    const ctrlOffValue = ctrl.getAttribute('data-offValue');
+    const ctrlOnValue = ctrl.getAttribute('data-on-value');
+    const ctrlOffValue = ctrl.getAttribute('data-off-value');
     if (ctrlOnValue && ctrlOffValue) {
       const onValue = ctrlOnValue ? ctrlOnValue : true;
       const offValue = ctrlOffValue ? ctrlOffValue : false;
@@ -55,14 +55,14 @@ export function getValue(ctrl: any, locale?: Locale, currencyCode?: string): str
       if (type === 'percentage' && value.indexOf('%') >= 0) {
         value = value.replace('%', '');
       }
-      return (isNaN(value) ? parseFloat(value) : null);
+      return (isNaN(value as any) ? parseFloat(value) : null);
     } else {
       return value;
     }
   }
 }
 
-export function getLabel(input: any): string {
+export function getLabel(input: HTMLElement): string {
   if (!input || input.getAttribute('type') === 'hidden') {
     return '';
   }
@@ -86,7 +86,7 @@ export function getLabel(input: any): string {
   }
 }
 
-function getLabelFromContainer(input: any): string {
+function getLabelFromContainer(input: HTMLElement): string {
   const parent = container(input);
   if (parent && parent.nodeName === 'LABEL' && parent.childNodes.length > 0) {
     const first = parent.childNodes[0];
@@ -97,7 +97,7 @@ function getLabelFromContainer(input: any): string {
     if (parent.classList.contains('form-group')) {
       const firstChild = parent.firstChild;
       if (firstChild.nodeName === 'LABEL') {
-        return firstChild.innerHTML;
+        return (firstChild as HTMLLabelElement).innerHTML;
       } else {
         return '';
       }
@@ -114,18 +114,20 @@ function getLabelFromContainer(input: any): string {
   return '';
 }
 
-export function decodeFromForm(form: any, locale: Locale, currencyCode: string): any {
+export function decodeFromForm(form: HTMLFormElement, locale: Locale, currencyCode: string): any {
   if (!form) {
     return null;
   }
   const dateFormat = form.getAttribute('date-format');
   const obj = {};
-  for (const ctrl of form) {
+  const len = form.length;
+  for (let i = 0; i < len; i++) {
+    const ctrl = form[i] as HTMLInputElement;
     let name = ctrl.getAttribute('name');
     const id = ctrl.getAttribute('id');
     let val: any;
     let isDate = false;
-    if (!name || name.length === 0) {
+    if (!name || name === '') {
       let dataField = ctrl.getAttribute('data-field');
       if (!dataField && ctrl.parentElement.classList.contains('DayPickerInput')) {
         dataField = ctrl.parentElement.parentElement.getAttribute('data-field');
@@ -133,7 +135,7 @@ export function decodeFromForm(form: any, locale: Locale, currencyCode: string):
       }
       name = dataField;
     }
-    if (name != null && name.length > 0) {
+    if (name != null && name !== '') {
       let nodeName = ctrl.nodeName;
       const type = ctrl.getAttribute('type');
       if (nodeName === 'INPUT' && type !== null) {
@@ -158,13 +160,15 @@ export function decodeFromForm(form: any, locale: Locale, currencyCode: string):
                 val = val.filter(item => item != ctrl.value);
               }
             } else {
-              if (ctrl.checked === 'checked') {
+              const c = ctrl.checked as any
+              if (c || c === 'checked') {
                 val = true;
               }
             }
             break;
           case 'radio':
-            if (ctrl.checked === 'checked') {
+            const c = ctrl.checked as any
+            if (c || c === 'checked') {
               val = ctrl.value;
             }
             break;
@@ -219,7 +223,7 @@ export function decodeFromForm(form: any, locale: Locale, currencyCode: string):
   return obj;
 }
 
-export function equalValues(ctrl1: any, ctrl2: any): boolean {
+export function equalValues(ctrl1: HTMLInputElement, ctrl2: HTMLInputElement): boolean {
   if (ctrl1.value === ctrl2.value) {
     return true;
   } else {
@@ -227,7 +231,7 @@ export function equalValues(ctrl1: any, ctrl2: any): boolean {
   }
 }
 
-export function isEmpty(ctrl: any): boolean {
+export function isEmpty(ctrl: HTMLInputElement): boolean {
   if (!ctrl) {
     return true;
   }
@@ -235,7 +239,7 @@ export function isEmpty(ctrl: any): boolean {
   return (str === '');
 }
 
-export function trim(ctrl: any) {
+export function trim(ctrl: HTMLInputElement) {
   if (!ctrl) {
     return;
   }
@@ -246,7 +250,7 @@ export function trim(ctrl: any) {
   }
 }
 
-export function container(ctrl: any): any {
+export function container(ctrl: HTMLElement): HTMLElement {
   const p = ctrl.parentElement;
   if (p.nodeName === 'LABEL' || p.classList.contains('form-group')) {
     return p;
@@ -270,8 +274,10 @@ export function container(ctrl: any): any {
   }
 }
 
-export function element(form: any, childName: string): any {
-  for (const f of form) {
+export function element(form: HTMLFormElement, childName: string): HTMLInputElement {
+  const len = form.length;
+  for (let i = 0; i < len; i++) {
+    const f = form[i] as HTMLInputElement;
     if (f.name === childName) {
       return f;
     }
@@ -279,7 +285,7 @@ export function element(form: any, childName: string): any {
   return null;
 }
 
-export function getParentByNodeNameOrDataField(ctrl: any, nodeName: string): any {
+export function getParentByNodeNameOrDataField(ctrl: HTMLElement, nodeName: string): HTMLElement {
   if (!ctrl) {
     return null;
   }

@@ -4,30 +4,30 @@ import {uievent} from './uievent';
 import {buildErrorMessage, ErrorMessage, removeErrorMessage, removeFormError, showFormError, validateForm} from './uivalidator';
 
 export class DefaultUIService {
-  getValue(ctrl: any, locale?: Locale, currencyCode?: string): string|number|boolean {
+  getValue(ctrl: HTMLInputElement, locale?: Locale, currencyCode?: string): string|number|boolean {
     return getValue(ctrl, locale, currencyCode);
   }
-  decodeFromForm(form: any, locale: Locale, currencyCode: string): any {
+  decodeFromForm(form: HTMLFormElement, locale: Locale, currencyCode: string): any {
     return decodeFromForm(form, locale, currencyCode);
   }
 
-  validateForm(form: any, locale: Locale, focusFirst?: boolean, scroll?: boolean): boolean {
+  validateForm(form: HTMLFormElement, locale: Locale, focusFirst?: boolean, scroll?: boolean): boolean {
     return validateForm(form, locale, focusFirst, scroll);
   }
-  removeFormError(form: any): void {
+  removeFormError(form: HTMLFormElement): void {
     removeFormError(form);
   }
-  removeErrorMessage(ctrl: any): void {
+  removeErrorMessage(ctrl: HTMLInputElement): void {
     removeErrorMessage(ctrl);
   }
-  showFormError(form: any, errors: ErrorMessage[], focusFirst?: boolean): ErrorMessage[] {
+  showFormError(form: HTMLFormElement, errors: ErrorMessage[], focusFirst?: boolean): ErrorMessage[] {
     return showFormError(form, errors, focusFirst);
   }
   buildErrorMessage(errors: ErrorMessage[]): string {
     return buildErrorMessage(errors);
   }
 
-  initMaterial(form: any): void {
+  initMaterial(form: HTMLFormElement): void {
     uievent.initMaterial(form);
   }
   numberOnFocus(event: any, locale: Locale): void {

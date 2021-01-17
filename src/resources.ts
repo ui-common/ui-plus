@@ -1,9 +1,11 @@
 export interface DateService {
   parse(value: string, format: string): Date;
 }
-
+export interface StringMap {
+  [key: string]: string;
+}
 export interface ResourceService {
-  resource(): any;
+  resource(): StringMap;
   value(key: string, param?: any): string;
   format(...args: any[]): string;
 }
@@ -33,20 +35,15 @@ export interface CurrencyService {
 }
 
 export interface LocaleService {
-  getLocale(id: string): Locale;
-  getLocaleOrDefault(id: string): Locale;
-  getZeroCurrencyByLanguage(language: string): void;
-  getZeroCurrency(locale: Locale): void;
   formatCurrency(value: any, currencyCode: string, locale: Locale, includingCurrencySymbol?: boolean): string;
-  formatInteger(value: any, locale: Locale): string;
   formatNumber(value: number, scale: number, locale: Locale): string;
   format(v: number, format: string, locale: Locale): string;
 }
 
 // tslint:disable-next-line:class-name
 export class resources {
-  static dateService: DateService = null;
-  static currencyService: CurrencyService = null;
-  static resourceService: ResourceService = null;
-  static localeService: LocaleService = null;
+  static dateService: DateService;
+  static currencyService: CurrencyService;
+  static resourceService: ResourceService;
+  static localeService: LocaleService;
 }

@@ -67,8 +67,10 @@ export class uievent {
     }, 0);
   }
 
-  static initMaterial(form: any): void {
-    for (const ctrl of form) {
+  static initMaterial(form: HTMLFormElement): void {
+    const len = form.length;
+    for (let i = 0; i < len; i++) {
+      const ctrl = form[i] as HTMLInputElement;
       if (ctrl.nodeName === 'INPUT' || ctrl.nodeName === 'SELECT') {
         let type = ctrl.getAttribute('type');
         if (type != null) {
@@ -92,8 +94,8 @@ export class uievent {
           } else if (parent.classList.contains('form-group')) {
             const firstChild = parent.firstChild;
             if (firstChild.nodeName === 'LABEL') {
-              if (!firstChild.classList.contains('required')) {
-                firstChild.classList.add('required');
+              if (!(firstChild as HTMLLabelElement).classList.contains('required')) {
+                (firstChild as HTMLLabelElement).classList.add('required');
               }
             }
           }
@@ -451,7 +453,7 @@ export class uievent {
           } else {
             smin2  = smin2 .replace(uievent._r1, '');
           }
-          if (smin2.length > 0 && !isNaN(smin2)) {
+          if (smin2.length > 0 && !isNaN(smin2 as any)) {
             const min2 = parseFloat(smin2);
             if (n < min2) {
               const minLabel = getLabel(ctrl2);
