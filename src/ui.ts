@@ -34,8 +34,8 @@ export function getValue(ctrl: HTMLInputElement, locale?: Locale, currencyCode?:
             c = ctrl.form.getAttribute('currency-code');
           }
         }
-        if (c) {
-          const currency = resources.currencyService.getCurrency(c);
+        if (c && resources.currency && c.length > 0) {
+          const currency = resources.currency.getCurrency(c);
           if (currency && value.indexOf(currency.currencySymbol) >= 0) {
             value = value.replace(currency.currencySymbol, '');
           }
@@ -60,58 +60,6 @@ export function getValue(ctrl: HTMLInputElement, locale?: Locale, currencyCode?:
       return value;
     }
   }
-}
-
-export function getLabel(input: HTMLElement): string {
-  if (!input || input.getAttribute('type') === 'hidden') {
-    return '';
-  }
-  let label = input.getAttribute('label');
-  if (label) {
-    return label;
-  } else if (!label || label.length === 0) {
-    let key = input.getAttribute('key');
-    if (!key || key.length === 0) {
-      key = input.getAttribute('resource-key');
-    }
-    if (key !== null && key.length > 0) {
-      label = resources.resourceService.value(key);
-      input.setAttribute('label', label);
-      return label;
-    } else {
-      return getLabelFromContainer(input);
-    }
-  } else {
-    return getLabelFromContainer(input);
-  }
-}
-
-function getLabelFromContainer(input: HTMLElement): string {
-  const parent = container(input);
-  if (parent && parent.nodeName === 'LABEL' && parent.childNodes.length > 0) {
-    const first = parent.childNodes[0];
-    if (first.nodeType === 3) {
-      return first.nodeValue;
-    }
-  } else if (parent && parent.nodeName !== 'LABEL') {
-    if (parent.classList.contains('form-group')) {
-      const firstChild = parent.firstChild;
-      if (firstChild.nodeName === 'LABEL') {
-        return (firstChild as HTMLLabelElement).innerHTML;
-      } else {
-        return '';
-      }
-    } else {
-      const node = parent.parentElement;
-      if (node && node.nodeName === 'LABEL' && node.childNodes.length > 0) {
-        const first = node.childNodes[0];
-        if (first.nodeType === 3) {
-          return first.nodeValue;
-        }
-      }
-    }
-  }
-  return '';
 }
 
 export function decodeFromForm(form: HTMLFormElement, locale: Locale, currencyCode: string): any {
@@ -186,23 +134,23 @@ export function decodeFromForm(form: HTMLFormElement, locale: Locale, currencyCo
           default:
             val = ctrl.value;
         }
-        if (resources.dateService && dateFormat && isDate) {
+        if (resources.date && dateFormat && isDate) {
           try {
-            val = resources.dateService.parse(val, dateFormat); // moment(val, dateFormat).toDate();
+            val = resources.date.parse(val, dateFormat); // moment(val, dateFormat).toDate();
           } catch (err) {
             val = null;
           }
         }
         const ctype = ctrl.getAttribute('data-type');
         let v: any = ctrl.value;
-        let c;
+        let c: string;
         if (ctype === 'currency') {
           c = ctrl.getAttribute('currency-code');
           if (!c) {
             c = currencyCode;
           }
-          if (c) {
-            const currency = resources.currencyService.getCurrency(c);
+          if (c && resources.currency && c.length > 0) {
+            const currency = resources.currency.getCurrency(c);
             if (currency && v.indexOf(currency.currencySymbol) >= 0) {
               v = v.replace(currency.currencySymbol, '');
             }
@@ -247,30 +195,6 @@ export function trim(ctrl: HTMLInputElement) {
   const str2 = trimText(ctrl.value);
   if (str !== str2) {
     ctrl.value = str2;
-  }
-}
-
-export function container(ctrl: HTMLElement): HTMLElement {
-  const p = ctrl.parentElement;
-  if (p.nodeName === 'LABEL' || p.classList.contains('form-group')) {
-    return p;
-  } else {
-    const p1 = p.parentElement;
-    if (p.nodeName === 'LABEL' || p1.classList.contains('form-group')) {
-      return p1;
-    } else {
-      const p2 = p1.parentElement;
-      if (p.nodeName === 'LABEL' || p2.classList.contains('form-group')) {
-        return p2;
-      } else {
-        const p3 = p2.parentElement;
-        if (p.nodeName === 'LABEL' || p3.classList.contains('form-group')) {
-          return p3;
-        } else {
-          return null;
-        }
-      }
-    }
   }
 }
 

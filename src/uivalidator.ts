@@ -1,7 +1,7 @@
 import {isCAPostalCode, isCheckNumber, isDashCode, isDashDigit, isDigitOnly, isEmail, isIPv4, isIPv6, isUrl, isUSPostalCode, isValidCode, isValidPattern, tel} from 'validation-util';
 import {formatter} from './formatter';
-import {Locale, resources} from './resources';
-import {container, element, getLabel, getParentByNodeNameOrDataField} from './ui';
+import {container, getLabel, Locale, resources} from './resources';
+import {element, getParentByNodeNameOrDataField} from './ui';
 
 export interface ErrorMessage {
   field: string;
@@ -27,9 +27,9 @@ export function isValidForm(form: HTMLFormElement, focusFirst?: boolean, scroll?
       if (!focusFirst) {
         focusFirst = true;
       }
-      if (ctrl && focusFirst === true) {
+      if (ctrl && focusFirst) {
         ctrl.focus();
-        if (scroll === true) {
+        if (scroll) {
           ctrl.scrollIntoView();
         }
       }
@@ -143,7 +143,7 @@ export function checkRequired(ctrl: HTMLInputElement, label?: string): boolean {
         label = getLabel(ctrl);
       }
       const errorKey = (ctrl.nodeName === 'SELECT' ? 'error_select_required' : 'error_required');
-      const r = resources.resourceService;
+      const r = resources.resource;
       let s = r.value(errorKey);
       if (!s || s === '') {
         s = r.value('error_required');
@@ -161,7 +161,7 @@ export function checkMaxLength(ctrl: HTMLInputElement, label?: string): boolean 
     const value = ctrl.value;
     const imaxlength = parseInt(maxlength, null);
     if (value.length > imaxlength) {
-      const r = resources.resourceService;
+      const r = resources.resource;
       if (!label || label === '') {
         label = getLabel(ctrl);
       }
@@ -179,7 +179,7 @@ export function checkMinLength(ctrl: HTMLInputElement, label?: string): boolean 
     const value = ctrl.value;
     const iminlength = parseInt(minlength, null);
     if (value.length < iminlength) {
-      const r = resources.resourceService;
+      const r = resources.resource;
       if (!label || label === '') {
         label = getLabel(ctrl);
       }
@@ -211,7 +211,7 @@ export function validateElement(ctrl: HTMLInputElement, locale: Locale): boolean
     return true;
   }
 
-  const parent: any = container(ctrl);
+  const parent = container(ctrl);
   if (parent) {
     if (parent.hidden || parent.style.display === 'none') {
       return true;
@@ -233,7 +233,7 @@ export function validateElement(ctrl: HTMLInputElement, locale: Locale): boolean
   if (!value || value === '') {
     return true;
   }
-  const r = resources.resourceService;
+  const r = resources.resource;
   if (checkMaxLength(ctrl, label)) {
     return false;
   }
@@ -288,8 +288,8 @@ export function validateElement(ctrl: HTMLInputElement, locale: Locale): boolean
       if (!currencyCode && ctrl.form) {
         currencyCode = ctrl.form.getAttribute('currency-code');
       }
-      if (currencyCode) {
-        const currency = resources.currencyService.getCurrency(currencyCode);
+      if (currencyCode && resources.currency && currencyCode.length > 0) {
+        const currency = resources.currency.getCurrency(currencyCode);
         if (currency && value.indexOf(currency.currencySymbol) >= 0) {
           value = value.replace(currency.currencySymbol, '');
         }
@@ -376,7 +376,7 @@ export function validateElement(ctrl: HTMLInputElement, locale: Locale): boolean
         }
       }
     }
-  } else if (resources.dateService && datatype2 === 'date' && value !== '') {
+  } else if (resources.date && datatype2 === 'date' && value !== '') {
     let dateFormat: string = ctrl.getAttribute('date-format');
     if (!dateFormat || dateFormat.length === 0) {
       dateFormat = ctrl.getAttribute('uib-datepicker-popup');
@@ -388,7 +388,7 @@ export function validateElement(ctrl: HTMLInputElement, locale: Locale): boolean
       dateFormat = 'MM/DD/YYYY';
     }*/
     // const isDate = moment(value, dateFormat.toUpperCase(), true).isValid(); // DateUtil.isDate(value, dateFormat);
-    const date = resources.dateService.parse(value, dateFormat); // moment(value, dateFormat).toDate(); // DateUtil.parse(value, dateFormat);
+    const date = resources.date.parse(value, dateFormat); // moment(value, dateFormat).toDate(); // DateUtil.parse(value, dateFormat);
     if (!date) { // (isDate === false) {
       const msg = r.format(r.value('error_date'), label);
       addErrorMessage(ctrl, msg);
@@ -555,13 +555,13 @@ export function addErrorMessage(ctrl: HTMLInputElement, msg: string): void {
   if (!ctrl.classList.contains('ng-touched')) {
     ctrl.classList.add('ng-touched');
   }
-  const parrent: any = container(ctrl);
+  const parrent = container(ctrl);
   if (parrent === null) {
     return;
   }
   if (parrent.nodeName && parrent.nodeName === 'LABEL' && !parrent.classList.contains('invalid')) {
     parrent.classList.add('invalid');
-  } else if (parrent.classList.contains('form-group') && !parrent.classList.contains('invalid')) {
+  } else if ((parrent.classList.contains('form-group') || parrent.classList.contains('field')) && !parrent.classList.contains('invalid')) {
     parrent.classList.add('invalid');
   } else if (parrent.nodeName === 'MD-INPUT-CONTAINER' && !parrent.classList.contains('md-input-invalid')) {
     parrent.classList.add('md-input-invalid');

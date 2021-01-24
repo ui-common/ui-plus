@@ -1,6 +1,6 @@
 import {Locale} from './resources';
 import {decodeFromForm, getValue} from './ui';
-import {uievent} from './uievent';
+import {initMaterial, numberOnFocus, numberOnBlur, percentageOnFocus, currencyOnFocus, requiredOnBlur, emailOnBlur, urlOnBlur, patternOnBlur, phoneOnBlur, faxOnBlur, currencyOnBlur} from './uievent';
 import {buildErrorMessage, ErrorMessage, removeErrorMessage, removeFormError, showFormError, validateForm} from './uivalidator';
 
 export class DefaultUIService {
@@ -28,39 +28,39 @@ export class DefaultUIService {
   }
 
   initMaterial(form: HTMLFormElement): void {
-    uievent.initMaterial(form);
+    initMaterial(form);
   }
-  numberOnFocus(event: any, locale: Locale): void {
-    uievent.numberOnFocus(event, locale);
+  numberOnFocus(event: Event, locale: Locale): void {
+    numberOnFocus(event, locale);
   }
-  numberOnBlur(event: any, locale: Locale): void {
-    uievent.numberOnBlur(event, locale);
+  numberOnBlur(event: Event, locale: Locale): void {
+    numberOnBlur(event, locale);
   }
-  percentageOnFocus(event: any, locale: Locale): void {
-    uievent.percentageOnFocus(event, locale);
+  percentageOnFocus(event: Event, locale: Locale): void {
+    percentageOnFocus(event, locale);
   }
-  currencyOnFocus(event: any, locale: Locale, currencyCode: string): void {
-    uievent.currencyOnFocus(event, locale, currencyCode);
+  currencyOnFocus(event: Event, locale: Locale, currencyCode: string): void {
+    currencyOnFocus(event, locale, currencyCode);
   }
-  currencyOnBlur(event: any, locale: Locale, currencyCode: string, includingCurrencySymbol: boolean): void {
-    uievent.currencyOnBlur(event, locale, currencyCode, includingCurrencySymbol);
+  currencyOnBlur(event: Event, locale: Locale, currencyCode: string, includingCurrencySymbol: boolean): void {
+    currencyOnBlur(event, locale, currencyCode, includingCurrencySymbol);
   }
-  emailOnBlur(event: any): void {
-    uievent.emailOnBlur(event);
+  emailOnBlur(event: Event): void {
+    emailOnBlur(event);
   }
-  urlOnBlur(event: any): void {
-    uievent.urlOnBlur(event);
+  urlOnBlur(event: Event): void {
+    urlOnBlur(event);
   }
-  phoneOnBlur(event: any): void {
-    uievent.phoneOnBlur(event);
+  phoneOnBlur(event: Event): void {
+    phoneOnBlur(event);
   }
-  faxOnBlur(event: any): void {
-    uievent.faxOnBlur(event);
+  faxOnBlur(event: Event): void {
+    faxOnBlur(event);
   }
-  requiredOnBlur(event: any): void {
-    uievent.requiredOnBlur(event);
+  requiredOnBlur(event: Event): void {
+    requiredOnBlur(event);
   }
-  patternOnBlur(event: any): void {
-    uievent.patternOnBlur(event);
+  patternOnBlur(event: Event): void {
+    patternOnBlur(event);
   }
 }
