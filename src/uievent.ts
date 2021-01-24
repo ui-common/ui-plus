@@ -63,11 +63,7 @@ function isULong(value: any): boolean {
   } else if (isNaN(value)) {
     return false;
   } else {
-    if (value >= 0) {
-      return true;
-    } else {
-      return false;
-    }
+    return (value >= 0);
   }
 }
 export function initMaterial(form: HTMLFormElement): void {
@@ -409,7 +405,7 @@ function validateMinMax(ctrl: any, n: number, label: string, locale: Locale): bo
     }
   }
   const minField = ctrl.getAttribute('min-field');
-    if (minField) {
+  if (minField) {
     const form = ctrl.form;
     if (form) {
       const ctrl2 = element(form, minField);
