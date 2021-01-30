@@ -1,8 +1,8 @@
 import {setValue, valueOf} from 'reflectx';
 import {Locale, resources} from './resources';
 
-const _r1 = / |,|\$|€|£|¥|'|٬|،| /g;
-const _r2 = / |\.|\$|€|£|¥|'|٬|،| /g;
+const r1 = / |,|\$|€|£|¥|'|٬|،| /g;
+const r2 = / |\.|\$|€|£|¥|'|٬|،| /g;
 
 export function getValue(ctrl: HTMLInputElement, locale?: Locale, currencyCode?: string): string|number|boolean {
   if (ctrl.type === 'checkbox') {
@@ -35,7 +35,7 @@ export function getValue(ctrl: HTMLInputElement, locale?: Locale, currencyCode?:
           }
         }
         if (c && resources.currency && c.length > 0) {
-          const currency = resources.currency.getCurrency(c);
+          const currency = resources.currency.currency(c);
           if (currency && value.indexOf(currency.currencySymbol) >= 0) {
             value = value.replace(currency.currencySymbol, '');
           }
@@ -45,12 +45,12 @@ export function getValue(ctrl: HTMLInputElement, locale?: Locale, currencyCode?:
         value = value.replace(locale.currencySymbol, '');
       }
       if (locale && locale.decimalSeparator !== '.') {
-        value = value.replace(_r2, '');
+        value = value.replace(r2, '');
         if (value.indexOf(locale.decimalSeparator) >= 0) {
           value = value.replace(locale.decimalSeparator, '.');
         }
       } else {
-        value = value.replace(_r1, '');
+        value = value.replace(r1, '');
       }
       if (type === 'percentage' && value.indexOf('%') >= 0) {
         value = value.replace('%', '');
@@ -62,7 +62,7 @@ export function getValue(ctrl: HTMLInputElement, locale?: Locale, currencyCode?:
   }
 }
 
-export function decodeFromForm(form: HTMLFormElement, locale: Locale, currencyCode: string): any {
+export function decodeFromForm(form: HTMLFormElement, locale?: Locale, currencyCode?: string): any {
   if (!form) {
     return null;
   }
@@ -108,15 +108,15 @@ export function decodeFromForm(form: HTMLFormElement, locale: Locale, currencyCo
                 val = val.filter(item => item != ctrl.value);
               }
             } else {
-              const c = ctrl.checked as any
-              if (c || c === 'checked') {
+              const c0 = ctrl.checked as any;
+              if (c0 || c0 === 'checked') {
                 val = true;
               }
             }
             break;
           case 'radio':
-            const c = ctrl.checked as any
-            if (c || c === 'checked') {
+            const cv = ctrl.checked as any;
+            if (cv || cv === 'checked') {
               val = ctrl.value;
             }
             break;
@@ -150,7 +150,7 @@ export function decodeFromForm(form: HTMLFormElement, locale: Locale, currencyCo
             c = currencyCode;
           }
           if (c && resources.currency && c.length > 0) {
-            const currency = resources.currency.getCurrency(c);
+            const currency = resources.currency.currency(c);
             if (currency && v.indexOf(currency.currencySymbol) >= 0) {
               v = v.replace(currency.currencySymbol, '');
             }
@@ -158,9 +158,9 @@ export function decodeFromForm(form: HTMLFormElement, locale: Locale, currencyCo
         }
         if (type === 'number' || ctype === 'currency' || ctype === 'int' || ctype === 'number') {
           if (locale && locale.decimalSeparator !== '.') {
-            v = v.replace(_r2, '');
+            v = v.replace(r2, '');
           } else {
-            v = v.replace(_r1, '');
+            v = v.replace(r1, '');
           }
           val = (isNaN(v) ? null : parseFloat(v));
         }

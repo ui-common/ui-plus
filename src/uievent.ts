@@ -1,6 +1,6 @@
 import {isEmail, isIPv4, isIPv6, isUrl, isValidPattern, tel} from 'validation-util';
 import {formatter} from './formatter';
-import {container, getLabel, Locale, resources} from './resources';
+import {Locale, resources} from './resources';
 import {element, trim} from './ui';
 import {addErrorMessage, checkMaxLength, checkMinLength, checkRequired, removeErrorMessage, validateElement} from './uivalidator';
 
@@ -19,7 +19,7 @@ export class uievent {
       if (ctrl.nodeName === 'INPUT' || ctrl.nodeName === 'SELECT'
         || ctrl.classList.contains('form-control') || ctrl.classList.contains('field')
         || ctrl.parentElement.classList.contains('form-control') || ctrl.parentElement.classList.contains('field')) {
-        const c = container(ctrl);
+        const c = resources.container(ctrl);
         if (c && !c.classList.contains('focused')) {
           c.classList.add('focused');
         }
@@ -32,7 +32,7 @@ export class uievent {
       if (ctrl.nodeName === 'INPUT' || ctrl.nodeName === 'SELECT'
         || ctrl.classList.contains('form-control') || ctrl.classList.contains('field')
         || ctrl.parentElement.classList.contains('form-control') || ctrl.parentElement.classList.contains('field')) {
-        const c = container(ctrl);
+        const c = resources.container(ctrl);
         const disableHighlightFocus = ctrl.getAttribute('disable-style-on-focus');
         if (c && !c.classList.contains('focused') && !disableHighlightFocus) {
           c.classList.add('focused');
@@ -45,7 +45,7 @@ export class uievent {
       if (ctrl.nodeName === 'INPUT' || ctrl.nodeName === 'SELECT'
         || ctrl.classList.contains('form-control') || ctrl.classList.contains('field')
         || ctrl.parentElement.classList.contains('form-control') || ctrl.parentElement.classList.contains('field')) {
-        const c = container(ctrl);
+        const c = resources.container(ctrl);
         if (c) {
           c.classList.remove('focused');
           c.classList.remove('focus');
@@ -140,7 +140,7 @@ export function checkOnBlur(event: Event, key: string, check: any, formatF?: (m0
       value = formatF(value);
     }
     if (value.length > 0 && !check(value)) {
-      const label = getLabel(ctrl);
+      const label = resources.label(ctrl);
       const r = resources.resource;
       const msg = r.format(r.value(key), label);
       addErrorMessage(ctrl, msg);
@@ -189,7 +189,7 @@ export function patternOnBlur(event: Event): void {
       if (pattern) {
         const resource_key = ctrl.getAttribute('resource-key') || ctrl.getAttribute('config-pattern-error-key');
         if (!isValidPattern(pattern, patternModifier, value)) {
-          const label = getLabel(ctrl);
+          const label = resources.label(ctrl);
           const r = resources.resource;
           const msg = r.format(r.value(resource_key), label);
           addErrorMessage(ctrl, msg);
@@ -209,7 +209,7 @@ export function validOnBlur(event: Event): void {
   }
   removeErrorMessage(ctrl);
 }
-export function validateOnBlur(event: Event, locale: Locale): void {
+export function validateOnBlur(event: Event, locale?: Locale): void {
   const ctrl = event.currentTarget as HTMLInputElement;
   uievent.handleMaterialBlur(ctrl);
   if (!ctrl || ctrl.readOnly || ctrl.disabled) {
@@ -263,19 +263,15 @@ export function percentageOnFocus(event: Event, locale: Locale) {
     }
   }, 0);
 }
-export function currencyOnFocus(event: Event, locale: Locale, currencyCode: string): void {
+export function currencyOnFocus(event: Event, locale: Locale, c?: string): void {
   const ctrl = event.currentTarget as HTMLInputElement;
   uievent.handleMaterialFocus(ctrl);
   if (ctrl.readOnly || ctrl.disabled || ctrl.value.length === 0) {
     return;
   } else {
     let v = ctrl.value;
-    let c = ctrl.getAttribute('currency-code');
-    if (!c) {
-      c = currencyCode;
-    }
     if (c && resources.currency && c.length > 0) {
-      const currency = resources.currency.getCurrency(c);
+      const currency = resources.currency.currency(c);
       if (currency) {
         if (v.indexOf(currency.currencySymbol) >= 0) {
           v = v.replace(currency.currencySymbol, '');
@@ -288,10 +284,10 @@ export function currencyOnFocus(event: Event, locale: Locale, currencyCode: stri
     handleNumberFocus(ctrl, v, locale);
   }
 }
-export function currencyOnBlur(event: Event, locale: Locale, currencyCode: string, includingCurrencySymbol: boolean): void {
+export function currencyOnBlur(event: Event, locale: Locale, currencyCode?: string, includingCurrencySymbol?: boolean): void {
   baseNumberOnBlur(event, locale, true, currencyCode, includingCurrencySymbol);
 }
-function baseNumberOnBlur(event: Event, locale: Locale, isCurrency: boolean, currencyCode: string, includingCurrencySymbol: boolean) {
+function baseNumberOnBlur(event: Event, locale: Locale, isCurrency: boolean, currencyCode?: string, includingCurrencySymbol?: boolean) {
   const ctrl = event.currentTarget as HTMLInputElement;
   if (!ctrl || ctrl.readOnly || ctrl.disabled) {
     return;
@@ -309,7 +305,7 @@ function baseNumberOnBlur(event: Event, locale: Locale, isCurrency: boolean, cur
         c = currencyCode;
       }
       if (c && resources.currency && c.length > 0) {
-        const currency = resources.currency.getCurrency(c);
+        const currency = resources.currency.currency(c);
         if (currency && value2.indexOf(currency.currencySymbol) >= 0) {
           value2 = value2.replace(currency.currencySymbol, '');
         }
@@ -326,7 +322,7 @@ function baseNumberOnBlur(event: Event, locale: Locale, isCurrency: boolean, cur
     } else {
       value2 = value2.replace(uievent.num1, '');
     }
-    const label = getLabel(ctrl);
+    const label = resources.label(ctrl);
     if (checkRequired(ctrl, label)) {
       return;
     }
@@ -353,22 +349,22 @@ function baseNumberOnBlur(event: Event, locale: Locale, isCurrency: boolean, cur
     }
   }, 40);
 }
-function formatCurrency(v: number, locale: Locale, currencyCode: string, includingCurrencySymbol: boolean): string {
-  return resources.formatCurrency(v, currencyCode, locale, includingCurrencySymbol);
+function formatCurrency(v: number, locale: Locale, currencyCode?: string, includingCurrencySymbol?: boolean): string {
+  return formatter.formatCurrency(v, currencyCode, locale, includingCurrencySymbol);
 }
-function formatNumber(ctrl: HTMLInputElement, v: number, locale: Locale): string {
+function formatNumber(ctrl: HTMLInputElement, v: number, locale?: Locale): string {
   const numFormat = ctrl.getAttribute('number-format');
   if (numFormat !== null) {
     if (numFormat.indexOf('number') === 0) {
       const strNums = numFormat.split(':');
       if (strNums.length > 0 && isULong(strNums[1])) {
         const scale = parseInt(strNums[1], null);
-        return resources.formatNumber(v, scale, locale);
+        return formatter.formatNumber(v, scale, locale);
       } else {
         return '' + v;
       }
     } else {
-      return resources.format(v, numFormat, locale);
+      return formatter.format(v, numFormat, locale);
     }
   } else {
     return '' + v;
@@ -422,7 +418,7 @@ function validateMinMax(ctrl: any, n: number, label: string, locale: Locale): bo
         if (smin2.length > 0 && !isNaN(smin2 as any)) {
           const min2 = parseFloat(smin2);
           if (n < min2) {
-            const minLabel = getLabel(ctrl2);
+            const minLabel = resources.label(ctrl2);
             const msg = r.format(r.value('error_min'), label, minLabel);
             addErrorMessage(ctrl, msg);
             return false;

@@ -1,6 +1,6 @@
 import {isCAPostalCode, isCheckNumber, isDashCode, isDashDigit, isDigitOnly, isEmail, isIPv4, isIPv6, isUrl, isUSPostalCode, isValidCode, isValidPattern, tel} from 'validation-util';
 import {formatter} from './formatter';
-import {container, getLabel, Locale, resources} from './resources';
+import {Locale, resources} from './resources';
 import {element, getParentByNodeNameOrDataField} from './ui';
 
 export interface ErrorMessage {
@@ -38,7 +38,7 @@ export function isValidForm(form: HTMLFormElement, focusFirst?: boolean, scroll?
   }
   return valid;
 }
-export function validateForm(form: HTMLFormElement, locale: Locale, focusFirst?: boolean, scroll?: boolean): boolean {
+export function validateForm(form: HTMLFormElement, locale?: Locale, focusFirst?: boolean, scroll?: boolean): boolean {
   let valid = true;
   let errorCtrl = null;
   let i = 0;
@@ -112,7 +112,7 @@ export function showFormError(form: HTMLFormElement, errors: ErrorMessage[], foc
   }
   return errs;
 }
-export function validateElements(controls: HTMLInputElement[], locale: Locale): boolean {
+export function validateElements(controls: HTMLInputElement[], locale?: Locale): boolean {
   let valid = true;
   let errorCtrl = null;
   for (const c of controls) {
@@ -140,7 +140,7 @@ export function checkRequired(ctrl: HTMLInputElement, label?: string): boolean {
   if (required !== null && required !== 'false') {
     if (value.length === 0) {
       if (!label) {
-        label = getLabel(ctrl);
+        label = resources.label(ctrl);
       }
       const errorKey = (ctrl.nodeName === 'SELECT' ? 'error_select_required' : 'error_required');
       const r = resources.resource;
@@ -163,7 +163,7 @@ export function checkMaxLength(ctrl: HTMLInputElement, label?: string): boolean 
     if (value.length > imaxlength) {
       const r = resources.resource;
       if (!label || label === '') {
-        label = getLabel(ctrl);
+        label = resources.label(ctrl);
       }
       const msg = r.format(r.value('error_maxlength'), label, maxlength);
       addErrorMessage(ctrl, msg);
@@ -181,7 +181,7 @@ export function checkMinLength(ctrl: HTMLInputElement, label?: string): boolean 
     if (value.length < iminlength) {
       const r = resources.resource;
       if (!label || label === '') {
-        label = getLabel(ctrl);
+        label = resources.label(ctrl);
       }
       const msg = r.format(r.value('error_minlength'), label, minlength);
       addErrorMessage(ctrl, msg);
@@ -190,7 +190,7 @@ export function checkMinLength(ctrl: HTMLInputElement, label?: string): boolean 
   }
 }
 
-export function validateElement(ctrl: HTMLInputElement, locale: Locale): boolean {
+export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolean {
   if (!ctrl) {
     return true;
   }
@@ -211,7 +211,7 @@ export function validateElement(ctrl: HTMLInputElement, locale: Locale): boolean
     return true;
   }
 
-  const parent = container(ctrl);
+  const parent = resources.container(ctrl);
   if (parent) {
     if (parent.hidden || parent.style.display === 'none') {
       return true;
@@ -225,7 +225,7 @@ export function validateElement(ctrl: HTMLInputElement, locale: Locale): boolean
 
   let value = ctrl.value;
 
-  const label = getLabel(ctrl);
+  const label = resources.label(ctrl);
   if (checkRequired(ctrl, label)) {
     return false;
   }
@@ -289,7 +289,7 @@ export function validateElement(ctrl: HTMLInputElement, locale: Locale): boolean
         currencyCode = ctrl.form.getAttribute('currency-code');
       }
       if (currencyCode && resources.currency && currencyCode.length > 0) {
-        const currency = resources.currency.getCurrency(currencyCode);
+        const currency = resources.currency.currency(currencyCode);
         if (currency && value.indexOf(currency.currencySymbol) >= 0) {
           value = value.replace(currency.currencySymbol, '');
         }
@@ -320,13 +320,13 @@ export function validateElement(ctrl: HTMLInputElement, locale: Locale): boolean
       return false;
     }
     const n = parseFloat(value);
-    let smin = ctrl.getAttribute('min');
+    const smin = ctrl.getAttribute('min');
     let min: number;
     if (smin !== null && smin.length > 0) {
       min = parseFloat(smin);
       if (n < min) {
         let msg = r.format(r.value('error_min'), label, min);
-        let smaxd = ctrl.getAttribute('max');
+        const smaxd = ctrl.getAttribute('max');
         if (smaxd !== null && smaxd.length > 0) {
           const maxd = parseFloat(smaxd);
           if (maxd === min) {
@@ -337,7 +337,7 @@ export function validateElement(ctrl: HTMLInputElement, locale: Locale): boolean
         return false;
       }
     }
-    let smax = ctrl.getAttribute('max');
+    const smax = ctrl.getAttribute('max');
     if (smax !== null && smax.length > 0) {
       const max = parseFloat(smax);
       if (n > max) {
@@ -368,7 +368,7 @@ export function validateElement(ctrl: HTMLInputElement, locale: Locale): boolean
         if (smin2.length > 0 && !isNaN(smin2 as any)) {
           const min2 = parseFloat(smin2);
           if (n < min2) {
-            const minLabel = getLabel(ctrl2);
+            const minLabel = resources.label(ctrl2);
             const msg = r.format(r.value('error_min'), label, minLabel);
             addErrorMessage(ctrl, msg);
             return false;
@@ -530,7 +530,7 @@ export function setValidControl(ctrl: HTMLInputElement): void {
   ctrl.classList.remove('invalid');
   ctrl.classList.remove('ng-touched');
 
-  const parent = container(ctrl);
+  const parent = resources.container(ctrl);
   if (parent != null) {
     if (!parent.classList.contains('valid')) {
       parent.classList.add('valid');
@@ -555,7 +555,7 @@ export function addErrorMessage(ctrl: HTMLInputElement, msg: string): void {
   if (!ctrl.classList.contains('ng-touched')) {
     ctrl.classList.add('ng-touched');
   }
-  const parrent = container(ctrl);
+  const parrent = resources.container(ctrl);
   if (parrent === null) {
     return;
   }
@@ -601,7 +601,7 @@ export function removeErrorMessage(ctrl: HTMLInputElement): void {
   ctrl.classList.remove('invalid');
   ctrl.classList.remove('ng-touched');
 
-  const parent = container(ctrl);
+  const parent = resources.container(ctrl);
   if (parent != null) {
     parent.classList.remove('valid');
     parent.classList.remove('invalid');
