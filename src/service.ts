@@ -1,11 +1,11 @@
 import {Locale} from './resources';
 import {decodeFromForm, getValue} from './ui';
-import {currencyOnBlur, currencyOnFocus, emailOnBlur, faxOnBlur, initMaterial, numberOnBlur, numberOnFocus, patternOnBlur, percentageOnFocus, phoneOnBlur, requiredOnBlur, urlOnBlur} from './uievent';
-import {buildErrorMessage, ErrorMessage, removeErrorMessage, removeFormError, showFormError, validateForm} from './uivalidator';
+import {currencyOnBlur, currencyOnFocus, emailOnBlur, faxOnBlur, numberOnBlur, numberOnFocus, patternOnBlur, percentageOnFocus, phoneOnBlur, registerEvents, requiredOnBlur, urlOnBlur} from './uievent';
+import {buildErrorMessage, ErrorMessage, removeError, removeFormError, showFormError, validateForm} from './uivalidator';
 
 export class DefaultUIService {
-  getValue(ctrl: HTMLInputElement, locale?: Locale, currencyCode?: string): string|number|boolean {
-    return getValue(ctrl, locale, currencyCode);
+  getValue(el: HTMLInputElement, locale?: Locale, currencyCode?: string): string|number|boolean {
+    return getValue(el, locale, currencyCode);
   }
   decodeFromForm(form: HTMLFormElement, locale?: Locale, currencyCode?: string): any {
     return decodeFromForm(form, locale, currencyCode);
@@ -17,8 +17,8 @@ export class DefaultUIService {
   removeFormError(form: HTMLFormElement): void {
     removeFormError(form);
   }
-  removeErrorMessage(ctrl: HTMLInputElement): void {
-    removeErrorMessage(ctrl);
+  removeError(el: HTMLInputElement): void {
+    removeError(el);
   }
   showFormError(form: HTMLFormElement, errors: ErrorMessage[], focusFirst?: boolean): ErrorMessage[] {
     return showFormError(form, errors, focusFirst);
@@ -27,40 +27,40 @@ export class DefaultUIService {
     return buildErrorMessage(errors);
   }
 
-  initMaterial(form: HTMLFormElement): void {
-    initMaterial(form);
+  registerEvents(form: HTMLFormElement): void {
+    registerEvents(form);
   }
-  numberOnFocus(event: Event, locale: Locale): void {
+  numberOnFocus(event: Event|any, locale: Locale): void {
     numberOnFocus(event, locale);
   }
-  numberOnBlur(event: Event, locale: Locale): void {
+  numberOnBlur(event: Event|any, locale: Locale): void {
     numberOnBlur(event, locale);
   }
-  percentageOnFocus(event: Event, locale: Locale): void {
+  percentageOnFocus(event: Event|any, locale: Locale): void {
     percentageOnFocus(event, locale);
   }
-  currencyOnFocus(event: Event, locale: Locale, currencyCode?: string): void {
+  currencyOnFocus(event: Event|any, locale: Locale, currencyCode?: string): void {
     currencyOnFocus(event, locale, currencyCode);
   }
-  currencyOnBlur(event: Event, locale: Locale, currencyCode?: string, includingCurrencySymbol?: boolean): void {
+  currencyOnBlur(event: Event|any, locale: Locale, currencyCode?: string, includingCurrencySymbol?: boolean): void {
     currencyOnBlur(event, locale, currencyCode, includingCurrencySymbol);
   }
-  emailOnBlur(event: Event): void {
+  emailOnBlur(event: Event|any): void {
     emailOnBlur(event);
   }
-  urlOnBlur(event: Event): void {
+  urlOnBlur(event: Event|any): void {
     urlOnBlur(event);
   }
-  phoneOnBlur(event: Event): void {
+  phoneOnBlur(event: Event|any): void {
     phoneOnBlur(event);
   }
-  faxOnBlur(event: Event): void {
+  faxOnBlur(event: Event|any): void {
     faxOnBlur(event);
   }
-  requiredOnBlur(event: Event): void {
+  requiredOnBlur(event: Event|any): void {
     requiredOnBlur(event);
   }
-  patternOnBlur(event: Event): void {
+  patternOnBlur(event: Event|any): void {
     patternOnBlur(event);
   }
 }

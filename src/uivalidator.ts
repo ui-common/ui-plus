@@ -8,11 +8,11 @@ export interface ErrorMessage {
   code: string;
   message?: string;
 }
-const _r1 = / |,|\$|€|£|¥|'|٬|،| /g;
-const _r2 = / |\.|\$|€|£|¥|'|٬|،| /g;
-const _r3 = new RegExp('&', 'gi');
-const _r4 = new RegExp('>', 'gi');
-const _r5 = new RegExp('<', 'gi');
+const r1 = / |,|\$|€|£|¥|'|٬|،| /g;
+const r2 = / |\.|\$|€|£|¥|'|٬|،| /g;
+const r3 = new RegExp('&', 'gi');
+const r4 = new RegExp('>', 'gi');
+const r5 = new RegExp('<', 'gi');
 
 export function isValidForm(form: HTMLFormElement, focusFirst?: boolean, scroll?: boolean): boolean {
   const valid = true;
@@ -62,7 +62,7 @@ export function validateForm(form: HTMLFormElement, locale?: Locale, focusFirst?
           errorCtrl = ctrl;
         }
       } else {
-        removeErrorMessage(ctrl);
+        removeError(ctrl);
       }
     }
   }
@@ -122,7 +122,7 @@ export function validateElements(controls: HTMLInputElement[], locale?: Locale):
         errorCtrl = c;
       }
     } else {
-      removeErrorMessage(c);
+      removeError(c);
     }
   }
   if (errorCtrl !== null) {
@@ -225,8 +225,8 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
 
   let value = ctrl.value;
 
-  const label = resources.label(ctrl);
-  if (checkRequired(ctrl, label)) {
+  const l = resources.label(ctrl);
+  if (checkRequired(ctrl, l)) {
     return false;
   }
 
@@ -234,17 +234,17 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
     return true;
   }
   const r = resources.resource;
-  if (checkMaxLength(ctrl, label)) {
+  if (checkMaxLength(ctrl, l)) {
     return false;
   }
-  if (checkMinLength(ctrl, label)) {
+  if (checkMinLength(ctrl, l)) {
     return false;
   }
   const minlength = ctrl.getAttribute('minlength');
   if (minlength !== null && !isNaN(minlength as any)) {
     const iminlength = parseInt(minlength, null);
     if (value.length < iminlength) {
-      const msg = r.format(r.value('error_minlength'), label, minlength);
+      const msg = r.format(r.value('error_minlength'), l, minlength);
       addErrorMessage(ctrl, msg);
       return false;
     }
@@ -271,14 +271,14 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
   if (pattern) {
     const resource_key = ctrl.getAttribute('resource-key') || ctrl.getAttribute('config-pattern-error-key');
     if (!isValidPattern(pattern, patternModifier, value)) {
-      const msg = r.format(r.value(resource_key), label);
+      const msg = r.format(r.value(resource_key), l);
       addErrorMessage(ctrl, msg);
       return false;
     }
   }
   if (datatype2 === 'email') {
     if (value.length > 0 && !isEmail(value)) {
-      const msg = r.format(r.value('error_email'), label);
+      const msg = r.format(r.value('error_email'), l);
       addErrorMessage(ctrl, msg);
       return false;
     }
@@ -289,7 +289,7 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
         currencyCode = ctrl.form.getAttribute('currency-code');
       }
       if (currencyCode && resources.currency && currencyCode.length > 0) {
-        const currency = resources.currency.currency(currencyCode);
+        const currency = resources.currency(currencyCode);
         if (currency && value.indexOf(currency.currencySymbol) >= 0) {
           value = value.replace(currency.currencySymbol, '');
         }
@@ -299,23 +299,23 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
       value = value.replace(locale.currencySymbol, '');
     }
     if (locale && locale.decimalSeparator !== '.') {
-      value = value.replace(_r2, '');
+      value = value.replace(r2, '');
       if (value.indexOf(locale.decimalSeparator) >= 0) {
         value = value.replace(locale.decimalSeparator, '.');
       }
     } else {
-      value = value.replace(_r1, '');
+      value = value.replace(r1, '');
     }
     if (datatype2 === 'percentage' && value.indexOf('%') >= 0) {
       value = value.replace('%', '');
     }
     if (isNaN(value as any)) {
-      const msg = r.format(r.value('error_number'), label);
+      const msg = r.format(r.value('error_number'), l);
       addErrorMessage(ctrl, msg);
       return false;
     }
     if (datatype2 === 'int' && !isDigitOnly(value)) {
-      const msg = r.format(r.value('error_number'), label);
+      const msg = r.format(r.value('error_number'), l);
       addErrorMessage(ctrl, msg);
       return false;
     }
@@ -325,12 +325,12 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
     if (smin !== null && smin.length > 0) {
       min = parseFloat(smin);
       if (n < min) {
-        let msg = r.format(r.value('error_min'), label, min);
+        let msg = r.format(r.value('error_min'), l, min);
         const smaxd = ctrl.getAttribute('max');
         if (smaxd !== null && smaxd.length > 0) {
           const maxd = parseFloat(smaxd);
           if (maxd === min) {
-            msg = r.format(r.value('error_equal'), label, maxd);
+            msg = r.format(r.value('error_equal'), l, maxd);
           }
         }
         addErrorMessage(ctrl, msg);
@@ -341,9 +341,9 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
     if (smax !== null && smax.length > 0) {
       const max = parseFloat(smax);
       if (n > max) {
-        let msg = r.format(r.value('error_max'), label, max);
+        let msg = r.format(r.value('error_max'), l, max);
         if (!min && max === min) {
-          msg = r.format(r.value('error_equal'), label);
+          msg = r.format(r.value('error_equal'), l);
         }
         addErrorMessage(ctrl, msg);
         return false;
@@ -358,18 +358,18 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
           smin2 = smin2.replace(locale.currencySymbol, '');
         }
         if (locale && locale.decimalSeparator !== '.') {
-          smin2 = smin2.replace(_r2, '');
+          smin2 = smin2.replace(r2, '');
           if (smin2.indexOf(locale.decimalSeparator) >= 0) {
             smin2 = smin2.replace(locale.decimalSeparator, '.');
           }
         } else {
-          smin2 = smin2.replace(_r1, '');
+          smin2 = smin2.replace(r1, '');
         }
         if (smin2.length > 0 && !isNaN(smin2 as any)) {
           const min2 = parseFloat(smin2);
           if (n < min2) {
             const minLabel = resources.label(ctrl2);
-            const msg = r.format(r.value('error_min'), label, minLabel);
+            const msg = r.format(r.value('error_min'), l, minLabel);
             addErrorMessage(ctrl, msg);
             return false;
           }
@@ -388,9 +388,9 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
       dateFormat = 'MM/DD/YYYY';
     }*/
     // const isDate = moment(value, dateFormat.toUpperCase(), true).isValid(); // DateUtil.isDate(value, dateFormat);
-    const date = resources.date.parse(value, dateFormat); // moment(value, dateFormat).toDate(); // DateUtil.parse(value, dateFormat);
-    if (!date) { // (isDate === false) {
-      const msg = r.format(r.value('error_date'), label);
+    const dt = resources.date(value, dateFormat); // moment(value, dateFormat).toDate(); // DateUtil.parse(value, dateFormat);
+    if (!dt) { // (isDate === false) {
+      const msg = r.format(r.value('error_date'), l);
       addErrorMessage(ctrl, msg);
       return false;
     } else {
@@ -404,8 +404,8 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
             strDate = maxdate.substring(1, maxdate.length - 1);
             dmaxdate = new Date(strDate); // DateUtil.parse(strDate, 'yyyy-MM-dd');
           }
-          if (dmaxdate !== null && date > dmaxdate) {
-            const msg = r.format(r.value('error_max_date'), label);
+          if (dmaxdate !== null && dt > dmaxdate) {
+            const msg = r.format(r.value('error_max_date'), l);
             addErrorMessage(ctrl, msg);
             return false;
           }
@@ -417,8 +417,8 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
             strDate = mindate.substring(1, mindate.length - 1);
             dmindate = new Date(strDate); // DateUtil.parse(strDate, 'yyyy-MM-dd');
           }
-          if (dmindate !== null && date < dmindate) {
-            const msg = r.format(r.value('error_min_date'), label);
+          if (dmindate !== null && dt < dmindate) {
+            const msg = r.format(r.value('error_min_date'), l);
             addErrorMessage(ctrl, msg);
             return false;
           }
@@ -427,57 +427,57 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
     }
   } else if (datatype2 === 'url') {
     if (!isUrl(value)) {
-      const msg = r.format(r.value('error_url'), label);
+      const msg = r.format(r.value('error_url'), l);
       addErrorMessage(ctrl, msg);
       return false;
     }
   } else if (datatype2 === 'phone') {
     const phoneStr = formatter.removePhoneFormat(value);
     if (!tel.isPhone(phoneStr)) {
-      const msg = r.format(r.value('error_phone'), label);
+      const msg = r.format(r.value('error_phone'), l);
       addErrorMessage(ctrl, msg);
       return false;
     }
   } else if (datatype2 === 'fax') {
     const phoneStr = formatter.removeFaxFormat(value);
     if (!tel.isFax(phoneStr)) {
-      const msg = r.format(r.value('error_fax'), label);
+      const msg = r.format(r.value('error_fax'), l);
       addErrorMessage(ctrl, msg);
       return false;
     }
   } else if (datatype2 === 'code') {
     if (!isValidCode(value)) {
-      const msg = r.format(r.value('error_code'), label);
+      const msg = r.format(r.value('error_code'), l);
       addErrorMessage(ctrl, msg);
       return false;
     }
   } else if (datatype2 === 'dash-code') {
     if (!isDashCode(value)) {
-      const msg = r.format(r.value('error_dash_code'), label);
+      const msg = r.format(r.value('error_dash_code'), l);
       addErrorMessage(ctrl, msg);
       return false;
     }
   } else if (datatype2 === 'digit') {
     if (!isDigitOnly(value)) {
-      const msg = r.format(r.value('error_digit'), label);
+      const msg = r.format(r.value('error_digit'), l);
       addErrorMessage(ctrl, msg);
       return false;
     }
   } else if (datatype2 === 'dash-digit') {
     if (!isDashDigit(value)) {
-      const msg = r.format(r.value('error_dash_digit'), label);
+      const msg = r.format(r.value('error_dash_digit'), l);
       addErrorMessage(ctrl, msg);
       return false;
     }
   } else if (datatype2 === 'routing-number') { // business-tax-id
     if (!isDashDigit(value)) {
-      const msg = r.format(r.value('error_routing_number'), label);
+      const msg = r.format(r.value('error_routing_number'), l);
       addErrorMessage(ctrl, msg);
       return false;
     }
   } else if (datatype2 === 'check-number') {
     if (!isCheckNumber(value)) {
-      const msg = r.format(r.value('error_check_number'), label);
+      const msg = r.format(r.value('error_check_number'), l);
       addErrorMessage(ctrl, msg);
       return false;
     }
@@ -487,19 +487,19 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
       countryCode = countryCode.toUpperCase();
       if (countryCode === 'US' || countryCode === 'USA') {
         if (!isUSPostalCode(value)) {
-          const msg = r.format(r.value('error_us_post_code'), label);
+          const msg = r.format(r.value('error_us_post_code'), l);
           addErrorMessage(ctrl, msg);
           return false;
         }
       } else if (countryCode === 'CA' || countryCode === 'CAN') {
         if (!isCAPostalCode(value)) {
-          const msg = r.format(r.value('error_ca_post_code'), label);
+          const msg = r.format(r.value('error_ca_post_code'), l);
           addErrorMessage(ctrl, msg);
           return false;
         }
       } else {
         if (!isDashCode(value)) {
-          const msg = r.format(r.value('error_post_code'), label);
+          const msg = r.format(r.value('error_post_code'), l);
           addErrorMessage(ctrl, msg);
           return false;
         }
@@ -507,18 +507,18 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
     }
   } else if (datatype2 === 'ipv4') {
     if (!isIPv4(value)) {
-      const msg = r.format(r.value('error_ipv4'), label);
+      const msg = r.format(r.value('error_ipv4'), l);
       addErrorMessage(ctrl, msg);
       return false;
     }
   } else if (datatype2 === 'ipv6') {
     if (!isIPv6(value)) {
-      const msg = r.format(r.value('error_ipv6'), label);
+      const msg = r.format(r.value('error_ipv6'), l);
       addErrorMessage(ctrl, msg);
       return false;
     }
   }
-  removeErrorMessage(ctrl);
+  removeError(ctrl);
   return true;
 }
 export function setValidControl(ctrl: HTMLInputElement): void {
@@ -586,12 +586,12 @@ export function removeFormError(form: HTMLFormElement): void {
     const len = form.length;
     for (let i = 0; i < len; i++) {
       const ctrl = form[i] as HTMLInputElement;
-      removeErrorMessage(ctrl);
+      removeError(ctrl);
     }
   }
 }
 
-export function removeErrorMessage(ctrl: HTMLInputElement): void {
+export function removeError(ctrl: HTMLInputElement): void {
   if (!ctrl) {
     return;
   }
@@ -629,13 +629,13 @@ export function buildErrorMessage(errors: ErrorMessage[]): string {
 
 function escape(text: string): string {
   if (text.indexOf('&') >= 0) {
-    text = text.replace(_r3, '&amp;');
+    text = text.replace(r3, '&amp;');
   }
   if (text.indexOf('>') >= 0) {
-    text = text.replace(_r4, '&gt;');
+    text = text.replace(r4, '&gt;');
   }
   if (text.indexOf('<') >= 0) {
-    text = text.replace(_r5, '&lt;');
+    text = text.replace(r5, '&lt;');
   }
   return text;
 }

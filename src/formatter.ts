@@ -24,8 +24,8 @@ export function formatCurrency(value: number, currencyCode?: string, locale?: Lo
 export function formatNumber(value: number, scale: number, locale?: Locale): string {
   return formatter.formatNumber(value, scale, locale);
 }
-export function format(v: number, format?: string, locale?: Locale): string {
-  return formatter.format(v, format, locale);
+export function format(v: number, fmt?: string, locale?: Locale): string {
+  return formatter.format(v, fmt, locale);
 }
 // tslint:disable-next-line:class-name
 export class formatter {
@@ -108,7 +108,7 @@ export class formatter {
     let currency: Currency;
     currencyCode = currencyCode.toUpperCase();
     if (resources.currency) {
-      currency = resources.currency.currency(currencyCode);
+      currency = resources.currency(currencyCode);
     }
     if (!currency) {
       currency = usd;
@@ -149,11 +149,11 @@ export class formatter {
       return _formatNumber(value, scale, '.', ',');
     }
   }
-  static format(v: number, format?: string, locale?: Locale): string {
-    if (!format) {
-      format = '#,###.00';
+  static format(v: number, fmt?: string, locale?: Locale): string {
+    if (!fmt) {
+      fmt = '#,###.00';
     }
-    let f = _format(v, format);
+    let f = _format(v, fmt);
     if (locale) {
       if (locale.decimalSeparator !== '.') {
         f = f.replace('.', '|');

@@ -2,7 +2,7 @@ import {isEmail, isIPv4, isIPv6, isUrl, isValidPattern, tel} from 'validation-ut
 import {formatter} from './formatter';
 import {Locale, resources} from './resources';
 import {element, trim} from './ui';
-import {addErrorMessage, checkMaxLength, checkMinLength, checkRequired, removeErrorMessage, validateElement} from './uivalidator';
+import {addErrorMessage, checkMaxLength, checkMinLength, checkRequired, removeError, validateElement} from './uivalidator';
 
 // tslint:disable-next-line:class-name
 export class uievent {
@@ -10,7 +10,7 @@ export class uievent {
   static num1 = / |,|\$|€|£|¥|'|٬|،| /g;
   static num2 = / |\.|\$|€|£|¥|'|٬|،| /g;
 
-  static materialOnFocus = (event: Event) => {
+  static materialOnFocus = (event: Event|any) => {
     const ctrl = event.currentTarget as HTMLInputElement;
     if (ctrl.disabled || ctrl.readOnly) {
       return;
@@ -66,7 +66,7 @@ function isULong(value: any): boolean {
     return (value >= 0);
   }
 }
-export function initMaterial(form: HTMLFormElement): void {
+export function registerEvents(form: HTMLFormElement): void {
   const len = form.length;
   for (let i = 0; i < len; i++) {
     const ctrl = form[i] as HTMLInputElement;
@@ -112,7 +112,7 @@ export function initMaterial(form: HTMLFormElement): void {
     }
   }
 }
-export function requiredOnBlur(event: Event): void {
+export function requiredOnBlur(event: Event|any): void {
   const ctrl = event.currentTarget as HTMLInputElement;
   if (!ctrl || ctrl.readOnly || ctrl.disabled) {
     return;
@@ -120,17 +120,17 @@ export function requiredOnBlur(event: Event): void {
   setTimeout(() => {
     trim(ctrl);
     if (!checkRequired(ctrl)) {
-      removeErrorMessage(ctrl);
+      removeError(ctrl);
     }
   }, 40);
 }
-export function checkOnBlur(event: Event, key: string, check: any, formatF?: (m0: string) => string): void {
+export function checkOnBlur(event: Event|any, key: string, check: any, formatF?: (m0: string) => string): void {
   const ctrl = event.currentTarget as HTMLInputElement;
   if (!ctrl || ctrl.readOnly || ctrl.disabled) {
     return;
   }
   let value = ctrl.value;
-  removeErrorMessage(ctrl);
+  removeError(ctrl);
   setTimeout(() => {
     trim(ctrl);
     if (checkRequired(ctrl) || checkMinLength(ctrl) || checkMaxLength(ctrl)) {
@@ -150,30 +150,30 @@ export function checkOnBlur(event: Event, key: string, check: any, formatF?: (m0
 /**
  * Check required by attribute, then check if this input is an valid email.
  */
-export function emailOnBlur(event: Event): void {
+export function emailOnBlur(event: Event|any): void {
   checkOnBlur(event, 'error_email', isEmail);
 }
-export function urlOnBlur(event: Event): void {
+export function urlOnBlur(event: Event|any): void {
   checkOnBlur(event, 'error_url', isUrl);
 }
-export function phoneOnBlur(event: Event): void {
+export function phoneOnBlur(event: Event|any): void {
   checkOnBlur(event, 'error_phone', tel.isPhone, formatter.removePhoneFormat);
 }
-export function faxOnBlur(event: Event): void {
+export function faxOnBlur(event: Event|any): void {
   checkOnBlur(event, 'error_fax', tel.isFax, formatter.removeFaxFormat);
 }
-export function ipv4OnBlur(event: Event): void {
+export function ipv4OnBlur(event: Event|any): void {
   checkOnBlur(event, 'error_ipv4', isIPv4);
 }
-export function ipv6OnBlur(event: Event): void {
+export function ipv6OnBlur(event: Event|any): void {
   checkOnBlur(event, 'error_ipv6', isIPv6);
 }
-export function patternOnBlur(event: Event): void {
+export function patternOnBlur(event: Event|any): void {
   const ctrl = event.currentTarget as HTMLInputElement;
   if (!ctrl || ctrl.readOnly || ctrl.disabled) {
     return;
   }
-  removeErrorMessage(ctrl);
+  removeError(ctrl);
   setTimeout(() => {
     trim(ctrl);
     if (checkRequired(ctrl)) {
@@ -198,18 +198,18 @@ export function patternOnBlur(event: Event): void {
     }
   }, 40);
 }
-export function materialOnBlur(event: Event): void {
+export function materialOnBlur(event: Event|any): void {
   const ctrl = event.currentTarget as HTMLInputElement;
   uievent.handleMaterialBlur(ctrl);
 }
-export function validOnBlur(event: Event): void {
+export function validOnBlur(event: Event|any): void {
   const ctrl = event.currentTarget as HTMLInputElement;
   if (!ctrl || ctrl.readOnly || ctrl.disabled) {
     return;
   }
-  removeErrorMessage(ctrl);
+  removeError(ctrl);
 }
-export function validateOnBlur(event: Event, locale?: Locale): void {
+export function validateOnBlur(event: Event|any, locale?: Locale): void {
   const ctrl = event.currentTarget as HTMLInputElement;
   uievent.handleMaterialBlur(ctrl);
   if (!ctrl || ctrl.readOnly || ctrl.disabled) {
@@ -217,7 +217,7 @@ export function validateOnBlur(event: Event, locale?: Locale): void {
   }
   setTimeout(() => {
     trim(ctrl);
-    removeErrorMessage(ctrl);
+    removeError(ctrl);
     validateElement(ctrl, locale);
   }, 0);
 }
@@ -231,7 +231,7 @@ export function handleNumberFocus(ctrl: HTMLInputElement, v: string, locale: Loc
     ctrl.value = v;
   }
 }
-export function numberOnFocus(event: Event, locale: Locale): void {
+export function numberOnFocus(event: Event|any, locale: Locale): void {
   const ctrl = event.currentTarget as HTMLInputElement;
   uievent.handleMaterialFocus(ctrl);
   if (ctrl.readOnly || ctrl.disabled || ctrl.value.length === 0) {
@@ -241,10 +241,10 @@ export function numberOnFocus(event: Event, locale: Locale): void {
     handleNumberFocus(ctrl, v, locale);
   }
 }
-export function numberOnBlur(event: Event, locale: Locale) {
+export function numberOnBlur(event: Event|any, locale: Locale) {
   baseNumberOnBlur(event, locale, false, null, false);
 }
-export function percentageOnFocus(event: Event, locale: Locale) {
+export function percentageOnFocus(event: Event|any, locale: Locale) {
   const ctrl = event.currentTarget as HTMLInputElement;
   uievent.handleMaterialFocus(ctrl);
   if (ctrl.readOnly || ctrl.disabled || ctrl.value.length === 0) {
@@ -263,7 +263,7 @@ export function percentageOnFocus(event: Event, locale: Locale) {
     }
   }, 0);
 }
-export function currencyOnFocus(event: Event, locale: Locale, c?: string): void {
+export function currencyOnFocus(event: Event|any, locale: Locale, c?: string): void {
   const ctrl = event.currentTarget as HTMLInputElement;
   uievent.handleMaterialFocus(ctrl);
   if (ctrl.readOnly || ctrl.disabled || ctrl.value.length === 0) {
@@ -271,7 +271,7 @@ export function currencyOnFocus(event: Event, locale: Locale, c?: string): void 
   } else {
     let v = ctrl.value;
     if (c && resources.currency && c.length > 0) {
-      const currency = resources.currency.currency(c);
+      const currency = resources.currency(c);
       if (currency) {
         if (v.indexOf(currency.currencySymbol) >= 0) {
           v = v.replace(currency.currencySymbol, '');
@@ -284,16 +284,16 @@ export function currencyOnFocus(event: Event, locale: Locale, c?: string): void 
     handleNumberFocus(ctrl, v, locale);
   }
 }
-export function currencyOnBlur(event: Event, locale: Locale, currencyCode?: string, includingCurrencySymbol?: boolean): void {
+export function currencyOnBlur(event: Event|any, locale: Locale, currencyCode?: string, includingCurrencySymbol?: boolean): void {
   baseNumberOnBlur(event, locale, true, currencyCode, includingCurrencySymbol);
 }
-function baseNumberOnBlur(event: Event, locale: Locale, isCurrency: boolean, currencyCode?: string, includingCurrencySymbol?: boolean) {
+function baseNumberOnBlur(event: Event|any, locale: Locale, isCurrency: boolean, currencyCode?: string, includingCurrencySymbol?: boolean) {
   const ctrl = event.currentTarget as HTMLInputElement;
   if (!ctrl || ctrl.readOnly || ctrl.disabled) {
     return;
   }
   materialOnBlur(event);
-  removeErrorMessage(ctrl);
+  removeError(ctrl);
   setTimeout(() => {
     trim(ctrl);
     const value = ctrl.value;
@@ -305,7 +305,7 @@ function baseNumberOnBlur(event: Event, locale: Locale, isCurrency: boolean, cur
         c = currencyCode;
       }
       if (c && resources.currency && c.length > 0) {
-        const currency = resources.currency.currency(c);
+        const currency = resources.currency(c);
         if (currency && value2.indexOf(currency.currencySymbol) >= 0) {
           value2 = value2.replace(currency.currencySymbol, '');
         }
@@ -344,7 +344,7 @@ function baseNumberOnBlur(event: Event, locale: Locale, isCurrency: boolean, cur
         if (r !== ctrl.value) {
           ctrl.value = r;
         }
-        removeErrorMessage(ctrl);
+        removeError(ctrl);
       }
     }
   }, 40);

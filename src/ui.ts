@@ -35,7 +35,7 @@ export function getValue(ctrl: HTMLInputElement, locale?: Locale, currencyCode?:
           }
         }
         if (c && resources.currency && c.length > 0) {
-          const currency = resources.currency.currency(c);
+          const currency = resources.currency(c);
           if (currency && value.indexOf(currency.currencySymbol) >= 0) {
             value = value.replace(currency.currencySymbol, '');
           }
@@ -136,7 +136,7 @@ export function decodeFromForm(form: HTMLFormElement, locale?: Locale, currencyC
         }
         if (resources.date && dateFormat && isDate) {
           try {
-            val = resources.date.parse(val, dateFormat); // moment(val, dateFormat).toDate();
+            val = resources.date(val, dateFormat); // moment(val, dateFormat).toDate();
           } catch (err) {
             val = null;
           }
@@ -150,7 +150,7 @@ export function decodeFromForm(form: HTMLFormElement, locale?: Locale, currencyC
             c = currencyCode;
           }
           if (c && resources.currency && c.length > 0) {
-            const currency = resources.currency.currency(c);
+            const currency = resources.currency(c);
             if (currency && v.indexOf(currency.currencySymbol) >= 0) {
               v = v.replace(currency.currencySymbol, '');
             }
@@ -187,7 +187,7 @@ export function isEmpty(ctrl: HTMLInputElement): boolean {
   return (str === '');
 }
 
-export function trim(ctrl: HTMLInputElement) {
+export function trim(ctrl: HTMLInputElement): void {
   if (!ctrl) {
     return;
   }

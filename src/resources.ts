@@ -1,6 +1,3 @@
-export interface DateService {
-  parse(value: string, format: string): Date;
-}
 export interface ResourceService {
   value(key: string, param?: any): string;
   format(f: string, ...args: any[]): string;
@@ -17,9 +14,6 @@ export interface Locale {
   currencySymbol: string;
   currencyPattern: number;
 }
-export interface CurrencyService {
-  currency(currencyCode: string): Currency;
-}
 export function label(input: HTMLElement): string {
   return resources.label(input);
 }
@@ -31,25 +25,26 @@ export function container(ctrl: HTMLElement): HTMLElement {
 }
 // tslint:disable-next-line:class-name
 export class resources {
-  static date: DateService;
-  static currency: CurrencyService;
   static resource: ResourceService;
+  static date: (value: string, format: string) => Date;
+  static currency: (currencyCode: string) => Currency;
+
   static label(input: HTMLElement): string {
     if (!input || input.getAttribute('type') === 'hidden') {
       return '';
     }
-    let label = input.getAttribute('label');
-    if (label) {
-      return label;
-    } else if (!label || label.length === 0) {
+    let l = input.getAttribute('label');
+    if (l) {
+      return l;
+    } else if (!l || l.length === 0) {
       let key = input.getAttribute('key');
       if (!key || key.length === 0) {
         key = input.getAttribute('resource-key');
       }
       if (key !== null && key.length > 0) {
-        label = resources.resource.value(key);
-        input.setAttribute('label', label);
-        return label;
+        l = resources.resource.value(key);
+        input.setAttribute('label', l);
+        return l;
       } else {
         return resources.labelFromContainer(input);
       }
