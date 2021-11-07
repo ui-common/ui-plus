@@ -18,7 +18,7 @@ export class uievent {
     setTimeout(() => {
       if (ctrl.nodeName === 'INPUT' || ctrl.nodeName === 'SELECT'
         || ctrl.classList.contains('form-control') || ctrl.classList.contains('field')
-        || ctrl.parentElement.classList.contains('form-control') || ctrl.parentElement.classList.contains('field')) {
+        || (ctrl.parentElement && (ctrl.parentElement.classList.contains('form-control') || ctrl.parentElement.classList.contains('field')))) {
         const c = resources.container(ctrl);
         if (c && !c.classList.contains('focused')) {
           c.classList.add('focused');
@@ -31,7 +31,7 @@ export class uievent {
     setTimeout(() => {
       if (ctrl.nodeName === 'INPUT' || ctrl.nodeName === 'SELECT'
         || ctrl.classList.contains('form-control') || ctrl.classList.contains('field')
-        || ctrl.parentElement.classList.contains('form-control') || ctrl.parentElement.classList.contains('field')) {
+        || (ctrl.parentElement && (ctrl.parentElement.classList.contains('form-control') || ctrl.parentElement.classList.contains('field')))) {
         const c = resources.container(ctrl);
         const disableHighlightFocus = ctrl.getAttribute('disable-style-on-focus');
         if (c && !c.classList.contains('focused') && !disableHighlightFocus) {
@@ -44,7 +44,7 @@ export class uievent {
     setTimeout(() => {
       if (ctrl.nodeName === 'INPUT' || ctrl.nodeName === 'SELECT'
         || ctrl.classList.contains('form-control') || ctrl.classList.contains('field')
-        || ctrl.parentElement.classList.contains('form-control') || ctrl.parentElement.classList.contains('field')) {
+        || (ctrl.parentElement && (ctrl.parentElement.classList.contains('form-control') || ctrl.parentElement.classList.contains('field')))) {
         const c = resources.container(ctrl);
         if (c) {
           c.classList.remove('focused');
@@ -85,16 +85,18 @@ export function registerEvents(form: HTMLFormElement): void {
       } else {
         const parent = ctrl.parentElement;
         const required = ctrl.getAttribute('required');
-        if (parent && parent.nodeName === 'LABEL'
-            // tslint:disable-next-line:triple-equals
-            && required != null && required !== undefined && required != 'false'
-            && !parent.classList.contains('required')) {
-          parent.classList.add('required');
-        } else if (parent.classList.contains('form-group') || parent.classList.contains('field')) {
-          const firstChild = parent.firstChild;
-          if (firstChild.nodeName === 'LABEL') {
-            if (!(firstChild as HTMLLabelElement).classList.contains('required')) {
-              (firstChild as HTMLLabelElement).classList.add('required');
+        if (parent) {
+          if (parent.nodeName === 'LABEL'
+              // tslint:disable-next-line:triple-equals
+              && required != null && required !== undefined && required != 'false'
+              && !parent.classList.contains('required')) {
+            parent.classList.add('required');
+          } else if (parent.classList.contains('form-group') || parent.classList.contains('field')) {
+            const firstChild = parent.firstChild;
+            if (firstChild && firstChild.nodeName === 'LABEL') {
+              if (!(firstChild as HTMLLabelElement).classList.contains('required')) {
+                (firstChild as HTMLLabelElement).classList.add('required');
+              }
             }
           }
         }
@@ -188,7 +190,7 @@ export function patternOnBlur(event: Event|any): void {
       }
       if (pattern) {
         const resource_key = ctrl.getAttribute('resource-key') || ctrl.getAttribute('config-pattern-error-key');
-        if (!isValidPattern(pattern, patternModifier, value)) {
+        if (resource_key && !isValidPattern(pattern, value, patternModifier)) {
           const label = resources.label(ctrl);
           const r = resources.resource;
           const msg = r.format(r.value(resource_key), label);
@@ -242,7 +244,7 @@ export function numberOnFocus(event: Event|any, locale: Locale): void {
   }
 }
 export function numberOnBlur(event: Event|any, locale: Locale) {
-  baseNumberOnBlur(event, locale, false, null, false);
+  baseNumberOnBlur(event, locale, false, undefined, false);
 }
 export function percentageOnFocus(event: Event|any, locale: Locale) {
   const ctrl = event.currentTarget as HTMLInputElement;
@@ -298,7 +300,7 @@ function baseNumberOnBlur(event: Event|any, locale: Locale, isCurrency: boolean,
     trim(ctrl);
     const value = ctrl.value;
     let value2 = value;
-    let c: string;
+    let c: string|null|undefined;
     if (isCurrency) {
       c = ctrl.getAttribute('currency-code');
       if (!c) {
@@ -349,7 +351,7 @@ function baseNumberOnBlur(event: Event|any, locale: Locale, isCurrency: boolean,
     }
   }, 40);
 }
-function formatCurrency(v: number, locale: Locale, currencyCode?: string, includingCurrencySymbol?: boolean): string {
+function formatCurrency(v: number, locale: Locale, currencyCode?: string|null, includingCurrencySymbol?: boolean): string {
   return formatter.formatCurrency(v, currencyCode, locale, includingCurrencySymbol);
 }
 function formatNumber(ctrl: HTMLInputElement, v: number, locale?: Locale): string {
@@ -358,7 +360,7 @@ function formatNumber(ctrl: HTMLInputElement, v: number, locale?: Locale): strin
     if (numFormat.indexOf('number') === 0) {
       const strNums = numFormat.split(':');
       if (strNums.length > 0 && isULong(strNums[1])) {
-        const scale = parseInt(strNums[1], null);
+        const scale = parseInt(strNums[1], 10);
         return formatter.formatNumber(v, scale, locale);
       } else {
         return '' + v;

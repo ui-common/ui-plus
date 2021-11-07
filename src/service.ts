@@ -4,14 +4,14 @@ import {currencyOnBlur, currencyOnFocus, emailOnBlur, faxOnBlur, numberOnBlur, n
 import {buildErrorMessage, ErrorMessage, removeError, removeFormError, showFormError, validateForm} from './uivalidator';
 
 export class DefaultUIService {
-  getValue(el: HTMLInputElement, locale?: Locale, currencyCode?: string): string|number|boolean {
+  getValue(el: HTMLInputElement, locale?: Locale, currencyCode?: string): string|number|boolean|null {
     return getValue(el, locale, currencyCode);
   }
-  decodeFromForm(form: HTMLFormElement, locale?: Locale, currencyCode?: string): any {
+  decodeFromForm(form: HTMLFormElement, locale?: Locale, currencyCode?: string|null): any {
     return decodeFromForm(form, locale, currencyCode);
   }
 
-  validateForm(form: HTMLFormElement, locale?: Locale, focusFirst?: boolean, scroll?: boolean): boolean {
+  validateForm(form?: HTMLFormElement, locale?: Locale, focusFirst?: boolean, scroll?: boolean): boolean {
     return validateForm(form, locale, focusFirst, scroll);
   }
   removeFormError(form: HTMLFormElement): void {
@@ -20,7 +20,7 @@ export class DefaultUIService {
   removeError(el: HTMLInputElement): void {
     removeError(el);
   }
-  showFormError(form: HTMLFormElement, errors: ErrorMessage[], focusFirst?: boolean): ErrorMessage[] {
+  showFormError(form?: HTMLFormElement, errors?: ErrorMessage[], focusFirst?: boolean): ErrorMessage[] {
     return showFormError(form, errors, focusFirst);
   }
   buildErrorMessage(errors: ErrorMessage[]): string {

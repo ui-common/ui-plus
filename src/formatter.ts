@@ -21,7 +21,7 @@ export function formatFax(fax: string): string {
 export function formatCurrency(value: number, currencyCode?: string, locale?: Locale, includingCurrencySymbol?: boolean): string {
   return formatter.formatCurrency(value, currencyCode, locale, includingCurrencySymbol);
 }
-export function formatNumber(value: number, scale: number, locale?: Locale): string {
+export function formatNumber(value: number, scale?: number, locale?: Locale): string {
   return formatter.formatNumber(value, scale, locale);
 }
 export function format(v: number, fmt?: string, locale?: Locale): string {
@@ -56,7 +56,9 @@ export class formatter {
     const x = formatter.removePhoneFormat(phone);
     if (x.length === 10) {
       const USNumber = x.match(formatter.usPhone);
-      s =  `${USNumber[1]} ${USNumber[2]}-${USNumber[3]}`;
+      if (USNumber != null) {
+        s =  `${USNumber[1]} ${USNumber[2]}-${USNumber[3]}`;
+      }
     } else if (x.length <= 3 && x.length > 0) {
       s = x;
     } else if (x.length > 3 && x.length < 7) {
@@ -98,14 +100,14 @@ export class formatter {
     }
     return s;
   }
-  static formatCurrency(value: number, currencyCode?: string, locale?: Locale, includingCurrencySymbol?: boolean): string {
+  static formatCurrency(value: number, currencyCode?: string|null, locale?: Locale, includingCurrencySymbol?: boolean): string {
     if (!value) {
       return '';
     }
     if (!currencyCode) {
       currencyCode = 'USD';
     }
-    let currency: Currency;
+    let currency: Currency|undefined;
     currencyCode = currencyCode.toUpperCase();
     if (resources.currency) {
       currency = resources.currency(currencyCode);
@@ -142,7 +144,7 @@ export class formatter {
     }
     return v;
   }
-  static formatNumber(value: number, scale: number, locale?: Locale): string {
+  static formatNumber(value: number, scale?: number, locale?: Locale): string {
     if (locale) {
       return _formatNumber(value, scale, locale.decimalSeparator, locale.groupSeparator);
     } else {
@@ -168,7 +170,7 @@ export class formatter {
     }
   }
 }
-function _formatNumber(v: number, scale: number, d?: string, g?: string): string {
+function _formatNumber(v: number, scale?: number, d?: string, g?: string): string {
   if (!v) {
     return '';
   }

@@ -4,7 +4,7 @@ import {Locale, resources} from './resources';
 const r1 = / |,|\$|€|£|¥|'|٬|،| /g;
 const r2 = / |\.|\$|€|£|¥|'|٬|،| /g;
 
-export function getValue(ctrl: HTMLInputElement, locale?: Locale, currencyCode?: string): string|number|boolean {
+export function getValue(ctrl: HTMLInputElement, locale?: Locale, currencyCode?: string): string|number|boolean|null {
   if (ctrl.type === 'checkbox') {
     const ctrlOnValue = ctrl.getAttribute('data-on-value');
     const ctrlOffValue = ctrl.getAttribute('data-off-value');
@@ -62,7 +62,7 @@ export function getValue(ctrl: HTMLInputElement, locale?: Locale, currencyCode?:
   }
 }
 
-export function decodeFromForm(form: HTMLFormElement, locale?: Locale, currencyCode?: string): any {
+export function decodeFromForm(form: HTMLFormElement, locale?: Locale, currencyCode?: string|null): any {
   if (!form) {
     return null;
   }
@@ -77,9 +77,11 @@ export function decodeFromForm(form: HTMLFormElement, locale?: Locale, currencyC
     let isDate = false;
     if (!name || name === '') {
       let dataField = ctrl.getAttribute('data-field');
-      if (!dataField && ctrl.parentElement.classList.contains('DayPickerInput')) {
-        dataField = ctrl.parentElement.parentElement.getAttribute('data-field');
-        isDate = true;
+      if (!dataField && ctrl.parentElement && ctrl.parentElement.classList.contains('DayPickerInput')) {
+        if (ctrl.parentElement.parentElement) {
+          dataField = ctrl.parentElement.parentElement.getAttribute('data-field');
+          isDate = true;
+        }
       }
       name = dataField;
     }
@@ -105,7 +107,7 @@ export function decodeFromForm(form: HTMLFormElement, locale?: Locale, currencyC
                 // obj[name].push(ctrl.value);
               } else {
                 // tslint:disable-next-line: triple-equals
-                val = val.filter(item => item != ctrl.value);
+                val = val.filter((item: string) => item != ctrl.value);
               }
             } else {
               const c0 = ctrl.checked as any;
@@ -143,7 +145,7 @@ export function decodeFromForm(form: HTMLFormElement, locale?: Locale, currencyC
         }
         const ctype = ctrl.getAttribute('data-type');
         let v: any = ctrl.value;
-        let c: string;
+        let c: string|null|undefined;
         if (ctype === 'currency') {
           c = ctrl.getAttribute('currency-code');
           if (!c) {
@@ -198,7 +200,7 @@ export function trim(ctrl: HTMLInputElement): void {
   }
 }
 
-export function element(form: HTMLFormElement, childName: string): HTMLInputElement {
+export function element(form: HTMLFormElement, childName: string): HTMLInputElement|null {
   const len = form.length;
   for (let i = 0; i < len; i++) {
     const f = form[i] as HTMLInputElement;
@@ -209,7 +211,7 @@ export function element(form: HTMLFormElement, childName: string): HTMLInputElem
   return null;
 }
 
-export function getParentByNodeNameOrDataField(ctrl: HTMLElement, nodeName: string): HTMLElement {
+export function getParentByNodeNameOrDataField(ctrl: HTMLElement, nodeName: string): HTMLElement|null {
   if (!ctrl) {
     return null;
   }

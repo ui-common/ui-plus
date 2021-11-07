@@ -1,6 +1,6 @@
 {
   "name": "ui-plus",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "UI Utilities",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
@@ -9,10 +9,10 @@
     "clean:lib": "rimraf lib"
   },
   "devDependencies": {
-    "reflectx": "^0.0.6",
+    "reflectx": "^0.0.10",
     "tslint": "5.10.0",
     "typescript": "^3.3.3333",
-    "validation-util": "^0.0.3"
+    "validation-util": "^0.0.5"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"

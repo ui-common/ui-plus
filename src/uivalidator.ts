@@ -23,7 +23,7 @@ export function isValidForm(form: HTMLFormElement, focusFirst?: boolean, scroll?
     const parent = ctrl.parentElement;
     if (ctrl.classList.contains('invalid')
       || ctrl.classList.contains('ng-invalid')
-      || parent.classList.contains('invalid')) {
+      || parent && parent.classList.contains('invalid')) {
       if (!focusFirst) {
         focusFirst = true;
       }
@@ -38,7 +38,10 @@ export function isValidForm(form: HTMLFormElement, focusFirst?: boolean, scroll?
   }
   return valid;
 }
-export function validateForm(form: HTMLFormElement, locale?: Locale, focusFirst?: boolean, scroll?: boolean): boolean {
+export function validateForm(form?: HTMLFormElement, locale?: Locale, focusFirst?: boolean, scroll?: boolean): boolean {
+  if (!form) {
+    return true;
+  }
   let valid = true;
   let errorCtrl = null;
   let i = 0;
@@ -77,8 +80,8 @@ export function validateForm(form: HTMLFormElement, locale?: Locale, focusFirst?
   }
   return valid;
 }
-export function showFormError(form: HTMLFormElement, errors: ErrorMessage[], focusFirst?: boolean): ErrorMessage[] {
-  if (!errors || errors.length === 0) {
+export function showFormError(form?: HTMLFormElement, errors?: ErrorMessage[], focusFirst?: boolean): ErrorMessage[] {
+  if (!form || !errors || errors.length === 0) {
     return [];
   }
   let errorCtrl = null;
@@ -159,7 +162,7 @@ export function checkMaxLength(ctrl: HTMLInputElement, label?: string): boolean 
   const maxlength = ctrl.getAttribute('maxlength');
   if (maxlength && !isNaN(maxlength as any)) {
     const value = ctrl.value;
-    const imaxlength = parseInt(maxlength, null);
+    const imaxlength = parseInt(maxlength, 10);
     if (value.length > imaxlength) {
       const r = resources.resource;
       if (!label || label === '') {
@@ -177,7 +180,7 @@ export function checkMinLength(ctrl: HTMLInputElement, label?: string): boolean 
   const minlength = ctrl.getAttribute('minlength');
   if (minlength !== null && !isNaN(minlength as any)) {
     const value = ctrl.value;
-    const iminlength = parseInt(minlength, null);
+    const iminlength = parseInt(minlength, 10);
     if (value.length < iminlength) {
       const r = resources.resource;
       if (!label || label === '') {
@@ -188,6 +191,7 @@ export function checkMinLength(ctrl: HTMLInputElement, label?: string): boolean 
       return false;
     }
   }
+  return true;
 }
 
 export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolean {
@@ -242,7 +246,7 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
   }
   const minlength = ctrl.getAttribute('minlength');
   if (minlength !== null && !isNaN(minlength as any)) {
-    const iminlength = parseInt(minlength, null);
+    const iminlength = parseInt(minlength, 10);
     if (value.length < iminlength) {
       const msg = r.format(r.value('error_minlength'), l, minlength);
       addErrorMessage(ctrl, msg);
@@ -269,10 +273,14 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
   }
 
   if (pattern) {
-    const resource_key = ctrl.getAttribute('resource-key') || ctrl.getAttribute('config-pattern-error-key');
-    if (!isValidPattern(pattern, patternModifier, value)) {
-      const msg = r.format(r.value(resource_key), l);
-      addErrorMessage(ctrl, msg);
+    if (!isValidPattern(pattern, value, patternModifier)) {
+      const resource_key = ctrl.getAttribute('resource-key') || ctrl.getAttribute('config-pattern-error-key');
+      if (resource_key) {
+        const msg = r.format(r.value(resource_key), l);
+        addErrorMessage(ctrl, msg);
+      } else {
+        addErrorMessage(ctrl, 'Pattern error');
+      }
       return false;
     }
   }
@@ -321,7 +329,7 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
     }
     const n = parseFloat(value);
     const smin = ctrl.getAttribute('min');
-    let min: number;
+    let min: number|undefined;
     if (smin !== null && smin.length > 0) {
       min = parseFloat(smin);
       if (n < min) {
@@ -377,7 +385,7 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
       }
     }
   } else if (resources.date && datatype2 === 'date' && value !== '') {
-    let dateFormat: string = ctrl.getAttribute('date-format');
+    let dateFormat: string|null = ctrl.getAttribute('date-format');
     if (!dateFormat || dateFormat.length === 0) {
       dateFormat = ctrl.getAttribute('uib-datepicker-popup');
     }
@@ -388,6 +396,9 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
       dateFormat = 'MM/DD/YYYY';
     }*/
     // const isDate = moment(value, dateFormat.toUpperCase(), true).isValid(); // DateUtil.isDate(value, dateFormat);
+    if (!dateFormat) {
+      dateFormat = 'MM/DD/YYYY';
+    }
     const dt = resources.date(value, dateFormat); // moment(value, dateFormat).toDate(); // DateUtil.parse(value, dateFormat);
     if (!dt) { // (isDate === false) {
       const msg = r.format(r.value('error_date'), l);
@@ -399,12 +410,12 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
       if (maxdate !== null || mindate !== null) {
         if (maxdate !== null) {
           let strDate = null;
-          let dmaxdate: Date = null;
+          let dmaxdate: Date|undefined;
           if (maxdate.startsWith('\'') || maxdate.startsWith('"')) {
             strDate = maxdate.substring(1, maxdate.length - 1);
             dmaxdate = new Date(strDate); // DateUtil.parse(strDate, 'yyyy-MM-dd');
           }
-          if (dmaxdate !== null && dt > dmaxdate) {
+          if (dmaxdate && dt > dmaxdate) {
             const msg = r.format(r.value('error_max_date'), l);
             addErrorMessage(ctrl, msg);
             return false;
@@ -544,11 +555,13 @@ export function setValidControl(ctrl: HTMLInputElement): void {
     }
   }
 }
-export function addErrorMessage(ctrl: HTMLInputElement, msg: string): void {
+export function addErrorMessage(ctrl: HTMLInputElement, msg?: string): void {
   if (!ctrl) {
     return;
   }
-
+  if (!msg) {
+    msg = 'Error';
+  }
   if (!ctrl.classList.contains('invalid')) {
     ctrl.classList.add('invalid');
   }
@@ -627,7 +640,10 @@ export function buildErrorMessage(errors: ErrorMessage[]): string {
   return sb.join('');
 }
 
-function escape(text: string): string {
+function escape(text?: string): string {
+  if (!text) {
+    return '';
+  }
   if (text.indexOf('&') >= 0) {
     text = text.replace(r3, '&amp;');
   }
