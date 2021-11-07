@@ -188,10 +188,10 @@ export function checkMinLength(ctrl: HTMLInputElement, label?: string): boolean 
       }
       const msg = r.format(r.value('error_minlength'), label, minlength);
       addErrorMessage(ctrl, msg);
-      return false;
+      return true;
     }
   }
-  return true;
+  return false;
 }
 
 export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolean {
