@@ -1,4 +1,4 @@
-import {isCAPostalCode, isCheckNumber, isDashCode, isDashDigit, isDigitOnly, isEmail, isIPv4, isIPv6, isUrl, isUSPostalCode, isValidCode, isValidPattern, tel} from 'validation-util';
+import {isCAPostalCode, isCheckNumber, isDashCode, isDashDigit, isDigitOnly, isEmail, isIPv4, isIPv6, isUrl, isUSPostalCode, isValidCode, isValidPattern, tel} from 'validation-core';
 import {formatter} from './formatter';
 import {Locale, resources} from './resources';
 import {element, getParentByNodeNameOrDataField} from './ui';
@@ -256,8 +256,7 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
   const ctype = ctrl.getAttribute('type');
   let datatype2 = ctrl.getAttribute('data-type');
   let pattern = ctrl.getAttribute('config-pattern');
-  const patternModifier = ctrl.getAttribute('config-pattern-modifier');
-  if (pattern == null || pattern === undefined) {
+  if (!pattern) {
     pattern = ctrl.getAttribute('pattern');
   }
   if (ctype === 'email') {
@@ -273,7 +272,14 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
   }
 
   if (pattern) {
-    if (!isValidPattern(pattern, value, patternModifier)) {
+    let flags = ctrl.getAttribute('config-pattern-flags');
+    if (!flags) {
+      flags = ctrl.getAttribute('flags');
+    }
+    if (!flags) {
+      flags = ctrl.getAttribute('pattern-flags');
+    }
+    if (!isValidPattern(value, pattern, flags)) {
       const resource_key = ctrl.getAttribute('resource-key') || ctrl.getAttribute('config-pattern-error-key');
       if (resource_key) {
         const msg = r.format(r.value(resource_key), l);

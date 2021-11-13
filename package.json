@@ -12,7 +12,7 @@
     "reflectx": "^0.0.10",
     "tslint": "5.10.0",
     "typescript": "^3.3.3333",
-    "validation-util": "^0.0.5"
+    "validation-core": "^0.0.3"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"

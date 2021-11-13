@@ -1,4 +1,4 @@
-import {isEmail, isIPv4, isIPv6, isUrl, isValidPattern, tel} from 'validation-util';
+import {isEmail, isIPv4, isIPv6, isUrl, isValidPattern, tel} from 'validation-core';
 import {formatter} from './formatter';
 import {Locale, resources} from './resources';
 import {element, trim} from './ui';
@@ -184,13 +184,19 @@ export function patternOnBlur(event: Event|any): void {
     const value = ctrl.value;
     if (value.length > 0) {
       let pattern = ctrl.getAttribute('config-pattern');
-      const patternModifier = ctrl.getAttribute('config-pattern-modifier');
-      if (pattern == null || pattern === undefined) {
+      let flags = ctrl.getAttribute('config-pattern-flags');
+      if (!pattern) {
         pattern = ctrl.getAttribute('pattern');
+      }
+      if (!flags) {
+        flags = ctrl.getAttribute('flags');
+      }
+      if (!flags) {
+        flags = ctrl.getAttribute('pattern-flags');
       }
       if (pattern) {
         const resource_key = ctrl.getAttribute('resource-key') || ctrl.getAttribute('config-pattern-error-key');
-        if (resource_key && !isValidPattern(pattern, value, patternModifier)) {
+        if (resource_key && !isValidPattern(value, pattern, flags)) {
           const label = resources.label(ctrl);
           const r = resources.resource;
           const msg = r.format(r.value(resource_key), label);
