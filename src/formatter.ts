@@ -12,19 +12,19 @@ export function removePhoneFormat(phone: string): string {
 export function removeFaxFormat(fax: string): string {
   return formatter.removeFaxFormat(fax);
 }
-export function formatPhone(phone: string): string {
+export function formatPhone(phone?: string|null): string {
   return formatter.formatPhone(phone);
 }
-export function formatFax(fax: string): string {
+export function formatFax(fax?: string|null): string {
   return formatter.formatFax(fax);
 }
-export function formatCurrency(value: number, currencyCode?: string, locale?: Locale, includingCurrencySymbol?: boolean): string {
+export function formatCurrency(value?: number|null, currencyCode?: string, locale?: Locale, includingCurrencySymbol?: boolean): string {
   return formatter.formatCurrency(value, currencyCode, locale, includingCurrencySymbol);
 }
-export function formatNumber(value: number, scale?: number, locale?: Locale): string {
+export function formatNumber(value?: number|null, scale?: number, locale?: Locale): string {
   return formatter.formatNumber(value, scale, locale);
 }
-export function format(v: number, fmt?: string, locale?: Locale): string {
+export function format(v?: number|null, fmt?: string, locale?: Locale): string {
   return formatter.format(v, fmt, locale);
 }
 // tslint:disable-next-line:class-name
@@ -46,9 +46,9 @@ export class formatter {
       return fax;
     }
   }
-  static formatPhone(phone: string): string {
+  static formatPhone(phone?: string|null): string {
     if (!phone) {
-      return phone;
+      return '';
     }
     // reformat phone number
     // 555 123-4567 or (+1) 555 123-4567
@@ -72,9 +72,9 @@ export class formatter {
     }
     return s;
   }
-  static formatFax(fax: string): string {
+  static formatFax(fax?: string|null): string {
     if (!fax) {
-      return fax;
+      return '';
     }
     // reformat phone number
     // 035-456745 or 02-1234567
@@ -100,8 +100,8 @@ export class formatter {
     }
     return s;
   }
-  static formatCurrency(value: number, currencyCode?: string|null, locale?: Locale, includingCurrencySymbol?: boolean): string {
-    if (!value) {
+  static formatCurrency(value?: number|null, currencyCode?: string|null, locale?: Locale, includingCurrencySymbol?: boolean): string {
+    if (value === undefined || value == null) {
       return '';
     }
     if (!currencyCode) {
@@ -144,14 +144,20 @@ export class formatter {
     }
     return v;
   }
-  static formatNumber(value: number, scale?: number, locale?: Locale): string {
+  static formatNumber(v?: number|null, scale?: number, locale?: Locale): string {
+    if (v === undefined || v == null) {
+      return '';
+    }
     if (locale) {
-      return _formatNumber(value, scale, locale.decimalSeparator, locale.groupSeparator);
+      return _formatNumber(v, scale, locale.decimalSeparator, locale.groupSeparator);
     } else {
-      return _formatNumber(value, scale, '.', ',');
+      return _formatNumber(v, scale, '.', ',');
     }
   }
-  static format(v: number, fmt?: string, locale?: Locale): string {
+  static format(v?: number|null, fmt?: string, locale?: Locale): string {
+    if (v === undefined || v == null) {
+      return '';
+    }
     if (!fmt) {
       fmt = '#,###.00';
     }

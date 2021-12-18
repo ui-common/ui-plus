@@ -3,7 +3,7 @@ import {decodeFromForm, getValue} from './ui';
 import {currencyOnBlur, currencyOnFocus, emailOnBlur, faxOnBlur, numberOnBlur, numberOnFocus, patternOnBlur, percentageOnFocus, phoneOnBlur, registerEvents, requiredOnBlur, urlOnBlur} from './uievent';
 import {buildErrorMessage, ErrorMessage, removeError, removeFormError, showFormError, validateForm} from './uivalidator';
 
-export class DefaultUIService {
+export class UIService {
   getValue(el: HTMLInputElement, locale?: Locale, currencyCode?: string): string|number|boolean|null {
     return getValue(el, locale, currencyCode);
   }

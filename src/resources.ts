@@ -26,8 +26,8 @@ export function container(ctrl: HTMLElement): HTMLElement|null {
 // tslint:disable-next-line:class-name
 export class resources {
   static resource: ResourceService;
-  static date?: (value: string, format: string) => Date;
-  static currency?: (currencyCode: string) => Currency;
+  static date?: (value: string, format: string) => Date|null|undefined;
+  static currency?: (currencyCode: string) => Currency|undefined;
 
   static label(input: HTMLElement): string {
     if (!input || input.getAttribute('type') === 'hidden') {
