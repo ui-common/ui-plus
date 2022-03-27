@@ -1,4 +1,4 @@
-import {setValue, valueOf} from 'reflectx';
+import {setValue, valueOf} from './reflect';
 import {Locale, resources} from './resources';
 
 const r1 = / |,|\$|€|£|¥|'|٬|،| /g;

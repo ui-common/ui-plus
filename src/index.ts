@@ -4,3 +4,4 @@ export * from './ui';
 export * from './uivalidator';
 export * from './uievent';
 export * from './service';
+export * from './reflect';

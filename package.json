@@ -1,6 +1,6 @@
 {
   "name": "ui-plus",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "UI Utilities",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
@@ -9,7 +9,6 @@
     "clean:lib": "rimraf lib"
   },
   "devDependencies": {
-    "reflectx": "^0.0.10",
     "tslint": "5.10.0",
     "typescript": "^3.3.3333",
     "validation-core": "^0.0.3"
