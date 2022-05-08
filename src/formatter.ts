@@ -189,7 +189,7 @@ function _formatNumber(v: number, scale?: number, d?: string, g?: string): strin
   const s = (scale === 0 || scale ? v.toFixed(scale) : v.toString());
   const x = s.split('.', 2);
   const y = x[0];
-  const arr = [];
+  const arr: string[] = [];
   const len = y.length - 1;
   for (let k = 0; k < len; k++) {
     arr.push(y[len - k]);

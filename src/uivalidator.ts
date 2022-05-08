@@ -43,7 +43,7 @@ export function validateForm(form?: HTMLFormElement, locale?: Locale, focusFirst
     return true;
   }
   let valid = true;
-  let errorCtrl = null;
+  let errorCtrl: HTMLInputElement | null = null;
   let i = 0;
   const len = form.length;
   for (i = 0; i < len; i++) {
@@ -84,8 +84,8 @@ export function showFormError(form?: HTMLFormElement, errors?: ErrorMessage[], f
   if (!form || !errors || errors.length === 0) {
     return [];
   }
-  let errorCtrl = null;
-  const errs = [];
+  let errorCtrl: HTMLInputElement | null = null;
+  const errs: ErrorMessage[] = [];
   const length = errors.length;
   const len = form.length;
 
@@ -117,7 +117,7 @@ export function showFormError(form?: HTMLFormElement, errors?: ErrorMessage[], f
 }
 export function validateElements(controls: HTMLInputElement[], locale?: Locale): boolean {
   let valid = true;
-  let errorCtrl = null;
+  let errorCtrl: HTMLInputElement | null = null;
   for (const c of controls) {
     if (!validateElement(c, locale)) {
       valid = false;
@@ -415,10 +415,9 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
       const mindate = ctrl.getAttribute('min');
       if (maxdate !== null || mindate !== null) {
         if (maxdate !== null) {
-          let strDate = null;
           let dmaxdate: Date|undefined;
           if (maxdate.startsWith('\'') || maxdate.startsWith('"')) {
-            strDate = maxdate.substring(1, maxdate.length - 1);
+            const strDate = maxdate.substring(1, maxdate.length - 1);
             dmaxdate = new Date(strDate); // DateUtil.parse(strDate, 'yyyy-MM-dd');
           }
           if (dmaxdate && dt > dmaxdate) {
@@ -428,13 +427,12 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
           }
         }
         if (mindate !== null) {
-          let strDate = null;
-          let dmindate = null;
+          let dmindate: Date|undefined;
           if (mindate.startsWith('\'') || mindate.startsWith('"')) {
-            strDate = mindate.substring(1, mindate.length - 1);
+            const strDate = mindate.substring(1, mindate.length - 1);
             dmindate = new Date(strDate); // DateUtil.parse(strDate, 'yyyy-MM-dd');
           }
-          if (dmindate !== null && dt < dmindate) {
+          if (dmindate && dt < dmindate) {
             const msg = r.format(r.value('error_min_date'), l);
             addErrorMessage(ctrl, msg);
             return false;

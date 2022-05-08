@@ -1,6 +1,6 @@
 {
   "name": "ui-plus",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "UI Utilities",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
