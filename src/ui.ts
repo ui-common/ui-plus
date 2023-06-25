@@ -133,6 +133,17 @@ export function decodeFromForm(form: HTMLFormElement, locale?: Locale, currencyC
               val = null;
             }
             break;
+          case 'datetime-local':
+            if (ctrl.value.length > 0) {
+              try {
+                val = new Date(ctrl.value).toISOString(); // DateUtil.parse(ctrl.value, 'YYYY-MM-DD');
+              } catch (err) {
+                val = null;
+              }
+            } else {
+              val = null;
+            }
+            break;
           default:
             val = ctrl.value;
         }
