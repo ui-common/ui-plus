@@ -23,10 +23,38 @@ export function labelFromContainer(input: HTMLElement): string {
 export function container(ctrl: HTMLElement): HTMLElement|null {
   return resources.container(ctrl);
 }
+export function parseDate(v: string, format?: string): Date | null | undefined {
+  if (!format || format.length === 0) {
+    format = 'MM/DD/YYYY';
+  } else {
+    format = format.toUpperCase();
+  }
+  const dateItems = format.split(/\.| |-/);
+  const valueItems = v.split(/\.| |-/);
+  let imonth  = dateItems.indexOf('M');
+  let iday    = dateItems.indexOf('D');
+  let iyear   = dateItems.indexOf('YYYY');
+  if (imonth === -1) {
+    imonth  = dateItems.indexOf('MM');
+  }
+  if (iday === -1) {
+    iday  = dateItems.indexOf('DD');
+  }
+  if (iyear === -1) {
+    iyear  = dateItems.indexOf('YY');
+  }
+  const month = parseInt(valueItems[imonth], 10) - 1;
+  let year = parseInt(valueItems[iyear], 10);
+  if (year < 100) {
+    year += 2000;
+  }
+  const day = parseInt(valueItems[iday], 10);
+  return new Date(year, month, day);
+}
 // tslint:disable-next-line:class-name
 export class resources {
   static resource: ResourceService;
-  static date?: (value: string, format: string) => Date|null|undefined;
+  static date?: (value: string, format: string) => Date|null|undefined = parseDate;
   static currency?: (currencyCode: string) => Currency|undefined;
 
   static label(input: HTMLElement): string {

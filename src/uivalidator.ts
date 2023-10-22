@@ -1,7 +1,7 @@
-import {isCAPostalCode, isCheckNumber, isDashCode, isDashDigit, isDigitOnly, isEmail, isIPv4, isIPv6, isUrl, isUSPostalCode, isValidCode, isValidPattern, tel} from 'validation-core';
-import {formatter} from './formatter';
-import {Locale, resources} from './resources';
-import {element, getParentByNodeNameOrDataField} from './ui';
+import { isCAPostalCode, isCheckNumber, isDashCode, isDashDigit, isDigitOnly, isEmail, isIPv4, isIPv6, isUrl, isUSPostalCode, isValidCode, isValidPattern, tel } from 'validation-core';
+import { formatter } from './formatter';
+import { Locale, resources } from './resources';
+import { element, getParentByNodeNameOrDataField } from './ui';
 
 export interface ErrorMessage {
   field: string;
@@ -335,7 +335,7 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
     }
     const n = parseFloat(value);
     const smin = ctrl.getAttribute('min');
-    let min: number|undefined;
+    let min: number | undefined;
     if (smin !== null && smin.length > 0) {
       min = parseFloat(smin);
       if (n < min) {
@@ -391,7 +391,7 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
       }
     }
   } else if (resources.date && datatype2 === 'date' && value !== '') {
-    let dateFormat: string|null = ctrl.getAttribute('date-format');
+    let dateFormat: string | null = ctrl.getAttribute('date-format');
     if (!dateFormat || dateFormat.length === 0) {
       dateFormat = ctrl.getAttribute('uib-datepicker-popup');
     }
@@ -415,7 +415,7 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
       const mindate = ctrl.getAttribute('min');
       if (maxdate !== null || mindate !== null) {
         if (maxdate !== null) {
-          let dmaxdate: Date|undefined;
+          let dmaxdate: Date | undefined;
           if (maxdate.startsWith('\'') || maxdate.startsWith('"')) {
             const strDate = maxdate.substring(1, maxdate.length - 1);
             dmaxdate = new Date(strDate); // DateUtil.parse(strDate, 'yyyy-MM-dd');
@@ -427,7 +427,7 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
           }
         }
         if (mindate !== null) {
-          let dmindate: Date|undefined;
+          let dmindate: Date | undefined;
           if (mindate.startsWith('\'') || mindate.startsWith('"')) {
             const strDate = mindate.substring(1, mindate.length - 1);
             dmindate = new Date(strDate); // DateUtil.parse(strDate, 'yyyy-MM-dd');
@@ -559,7 +559,7 @@ export function setValidControl(ctrl: HTMLInputElement): void {
     }
   }
 }
-export function addErrorMessage(ctrl: HTMLInputElement, msg?: string): void {
+export function addErrorMessage(ctrl: HTMLInputElement, msg?: string, directParent?: boolean): void {
   if (!ctrl) {
     return;
   }
@@ -572,19 +572,19 @@ export function addErrorMessage(ctrl: HTMLInputElement, msg?: string): void {
   if (!ctrl.classList.contains('ng-touched')) {
     ctrl.classList.add('ng-touched');
   }
-  const parrent = resources.container(ctrl);
-  if (parrent === null) {
+  const parent = directParent ? ctrl.parentElement : resources.container(ctrl);
+  if (parent === null) {
     return;
   }
-  if (parrent.nodeName && parrent.nodeName === 'LABEL' && !parrent.classList.contains('invalid')) {
-    parrent.classList.add('invalid');
-  } else if ((parrent.classList.contains('form-group') || parrent.classList.contains('field')) && !parrent.classList.contains('invalid')) {
-    parrent.classList.add('invalid');
-  } else if (parrent.nodeName === 'MD-INPUT-CONTAINER' && !parrent.classList.contains('md-input-invalid')) {
-    parrent.classList.add('md-input-invalid');
+  if (parent.nodeName && parent.nodeName === 'LABEL' && !parent.classList.contains('invalid')) {
+    parent.classList.add('invalid');
+  } else if ((parent.classList.contains('form-group') || parent.classList.contains('field')) && !parent.classList.contains('invalid')) {
+    parent.classList.add('invalid');
+  } else if (parent.nodeName === 'MD-INPUT-CONTAINER' && !parent.classList.contains('md-input-invalid')) {
+    parent.classList.add('md-input-invalid');
   }
 
-  const span = parrent.querySelector('.span-error');
+  const span = parent.querySelector('.span-error');
 
   if (span) {
     if (span.innerHTML !== msg) {
@@ -594,7 +594,7 @@ export function addErrorMessage(ctrl: HTMLInputElement, msg?: string): void {
     const spanError = document.createElement('span');
     spanError.classList.add('span-error');
     spanError.innerHTML = msg;
-    parrent.appendChild(spanError);
+    parent.appendChild(spanError);
   }
 }
 
@@ -607,8 +607,39 @@ export function removeFormError(form: HTMLFormElement): void {
     }
   }
 }
-
-export function removeError(ctrl: HTMLInputElement): void {
+export const removeErrors = (ids?: string | string[]) => {
+  if (!ids) return;
+  if (Array.isArray(ids)) {
+    ids.forEach((id) => {
+      const ctrls = document.getElementsByName(id);
+      if (ctrls.length > 0) {
+        const ctrl = ctrls[0] as HTMLInputElement;
+        if (ctrl) {
+          removeError(ctrl);
+        }
+      } else {
+        const ctrlId = document.getElementById(id) as HTMLInputElement;
+        if (ctrlId) {
+          removeError(ctrlId);
+        }
+      }
+    });
+  } else {
+    const ctrls = document.getElementsByName(ids);
+    if (ctrls.length > 0) {
+      const ctrl = ctrls[0] as HTMLInputElement;
+      if (ctrl) {
+        removeError(ctrl);
+      }
+    } else {
+      const ctrlId = document.getElementById(ids) as HTMLInputElement;
+      if (ctrlId) {
+        removeError(ctrlId);
+      }
+    }
+  }
+}
+export function removeError(ctrl: HTMLInputElement, directParent?: boolean): void {
   if (!ctrl) {
     return;
   }
@@ -618,7 +649,7 @@ export function removeError(ctrl: HTMLInputElement): void {
   ctrl.classList.remove('invalid');
   ctrl.classList.remove('ng-touched');
 
-  const parent = resources.container(ctrl);
+  const parent = directParent ? ctrl.parentElement : resources.container(ctrl);
   if (parent != null) {
     parent.classList.remove('valid');
     parent.classList.remove('invalid');
