@@ -38,7 +38,7 @@ export function isValidForm(form: HTMLFormElement, focusFirst?: boolean, scroll?
   }
   return valid;
 }
-export function validateForm(form?: HTMLFormElement, locale?: Locale, focusFirst?: boolean, scroll?: boolean): boolean {
+export function validateForm(form?: HTMLFormElement, locale?: Locale, focusFirst?: boolean, scroll?: boolean, includeReadOnly?: boolean): boolean {
   if (!form) {
     return true;
   }
@@ -59,7 +59,7 @@ export function validateForm(form?: HTMLFormElement, locale?: Locale, focusFirst
       || type === 'reset') {
       continue;
     } else {
-      if (!validateElement(ctrl, locale)) {
+      if (!validateElement(ctrl, locale, includeReadOnly)) {
         valid = false;
         if (!errorCtrl) {
           errorCtrl = ctrl;
@@ -80,7 +80,7 @@ export function validateForm(form?: HTMLFormElement, locale?: Locale, focusFirst
   }
   return valid;
 }
-export function showFormError(form?: HTMLFormElement, errors?: ErrorMessage[], focusFirst?: boolean): ErrorMessage[] {
+export function showFormError(form?: HTMLFormElement, errors?: ErrorMessage[], focusFirst?: boolean, directParent?: boolean, includeId?: boolean): ErrorMessage[] {
   if (!form || !errors || errors.length === 0) {
     return [];
   }
@@ -95,7 +95,7 @@ export function showFormError(form?: HTMLFormElement, errors?: ErrorMessage[], f
       const ctrl = form[j] as HTMLInputElement;
       const dataField = ctrl.getAttribute('data-field');
       if (dataField === errors[i].field || ctrl.name === errors[i].field) {
-        addErrorMessage(ctrl, errors[i].message);
+        addErrorMessage(ctrl, errors[i].message, directParent);
         hasControl = true;
         if (!errorCtrl) {
           errorCtrl = ctrl;
@@ -103,7 +103,16 @@ export function showFormError(form?: HTMLFormElement, errors?: ErrorMessage[], f
       }
     }
     if (hasControl === false) {
-      errs.push(errors[i]);
+      if (includeId) {
+        const ctrl = document.getElementById(errors[i].field);
+        if (ctrl) {
+          addErrorMessage(ctrl as HTMLInputElement, errors[i].message, directParent);
+        } else {
+          errs.push(errors[i]);
+        }
+      } else {
+        errs.push(errors[i]);
+      }
     }
   }
   if (!focusFirst) {
@@ -138,7 +147,11 @@ export function checkRequired(ctrl: HTMLInputElement, label?: string): boolean {
   const value = ctrl.value;
   let required = ctrl.getAttribute('config-required');
   if (required == null || required === undefined) {
-    required = ctrl.getAttribute('required');
+    if (ctrl.nodeName === 'SELECT') {
+      required = ctrl.hasAttribute('required') ? 'true' : 'false';
+    } else {
+      required = ctrl.getAttribute('required');
+    }
   }
   if (required !== null && required !== 'false') {
     if (value.length === 0) {
@@ -194,12 +207,12 @@ export function checkMinLength(ctrl: HTMLInputElement, label?: string): boolean 
   return false;
 }
 
-export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolean {
+export function validateElement(ctrl: HTMLInputElement, locale?: Locale, includeReadOnly?: boolean): boolean {
   if (!ctrl) {
     return true;
   }
 
-  if (!ctrl || ctrl.readOnly || ctrl.disabled || ctrl.hidden || ctrl.style.display === 'none') {
+  if (!ctrl || (ctrl.readOnly && includeReadOnly === false) || ctrl.disabled || ctrl.hidden || ctrl.style.display === 'none') {
     return true;
   }
   let nodeName = ctrl.nodeName;
@@ -208,6 +221,9 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale): boolea
     if (type !== null) {
       nodeName = type.toUpperCase();
     }
+  }
+  if (ctrl.tagName === 'SELECT') {
+    nodeName = 'SELECT'
   }
   if (nodeName === 'BUTTON'
     || nodeName === 'RESET'
@@ -559,6 +575,34 @@ export function setValidControl(ctrl: HTMLInputElement): void {
     }
   }
 }
+export function addError(form: HTMLFormElement, name: string, msg: string, directParent?: boolean): boolean {
+  const len = form.length;
+  for (let i = 0; i < len; i++) {
+    const ctrl = form[i] as HTMLInputElement;
+    const nameAttr = ctrl.getAttribute('name');
+    const idAttr = ctrl.getAttribute('id');
+    const dataAttr = ctrl.getAttribute('data-field');
+    if (name && (nameAttr === name || idAttr === name || dataAttr === 'name')) {
+      addErrorMessage(ctrl, msg, directParent);
+      return true;
+    }
+  }
+  return false;
+}
+export function removeErr(form: HTMLFormElement, name: string, directParent?: boolean): boolean {
+  const len = form.length;
+  for (let i = 0; i < len; i++) {
+    const ctrl = form[i] as HTMLInputElement;
+    const nameAttr = ctrl.getAttribute('name');
+    const idAttr = ctrl.getAttribute('id');
+    const dataAttr = ctrl.getAttribute('data-field');
+    if (name && (nameAttr === name || idAttr === name || dataAttr === 'name')) {
+      removeError(ctrl, directParent);
+      return true;
+    }
+  }
+  return false;
+}
 export function addErrorMessage(ctrl: HTMLInputElement, msg?: string, directParent?: boolean): void {
   if (!ctrl) {
     return;
@@ -675,7 +719,7 @@ export function buildErrorMessage(errors: ErrorMessage[]): string {
   return sb.join('');
 }
 
-function escape(text?: string): string {
+export function escape(text?: string): string {
   if (!text) {
     return '';
   }

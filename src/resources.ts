@@ -29,8 +29,8 @@ export function parseDate(v: string, format?: string): Date | null | undefined {
   } else {
     format = format.toUpperCase();
   }
-  const dateItems = format.split(/\.| |-/);
-  const valueItems = v.split(/\.| |-/);
+  const dateItems = format.split(/\/|\.| |-/);
+  const valueItems = v.split(/\/|\.| |-/);
   let imonth  = dateItems.indexOf('M');
   let iday    = dateItems.indexOf('D');
   let iyear   = dateItems.indexOf('YYYY');
@@ -58,17 +58,18 @@ export class resources {
   static currency?: (currencyCode: string) => Currency|undefined;
 
   static label(input: HTMLElement): string {
-    if (!input || input.getAttribute('type') === 'hidden') {
+    if (!input) {
       return '';
     }
-    let l = input.getAttribute('label');
+    let l = input.getAttribute('data-label');
     if (l) {
       return l;
     } else if (!l || l.length === 0) {
-      let key = input.getAttribute('key');
+      let key = input.getAttribute('data-resource');
+      /*
       if (!key || key.length === 0) {
         key = input.getAttribute('resource-key');
-      }
+      }*/
       if (key !== null && key.length > 0) {
         l = resources.resource.value(key);
         input.setAttribute('label', l);
