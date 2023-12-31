@@ -206,7 +206,19 @@ export function checkMinLength(ctrl: HTMLInputElement, label?: string): boolean 
   }
   return false;
 }
-
+export function trimTime(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+}
+export function addDays(d: Date, n: number): Date {
+  const newDate = new Date(d);
+  newDate.setDate(newDate.getDate() + n);
+  return newDate;
+}
+export function addSeconds(d: Date, n: number): Date {
+  const newDate = new Date(d);
+  newDate.setSeconds(newDate.getSeconds() + n);
+  return newDate;
+}
 export function validateElement(ctrl: HTMLInputElement, locale?: Locale, includeReadOnly?: boolean): boolean {
   if (!ctrl) {
     return true;
@@ -269,7 +281,10 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
       return false;
     }
   }
-  const ctype = ctrl.getAttribute('type');
+  let ctype = ctrl.getAttribute('type');
+  if (ctype) {
+    ctype = ctype.toLowerCase();
+  }
   let datatype2 = ctrl.getAttribute('data-type');
   let pattern = ctrl.getAttribute('config-pattern');
   if (!pattern) {
@@ -282,7 +297,7 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
   } else if (!datatype2) {
     if (ctype === 'number') {
       datatype2 = 'number';
-    } else if (ctype === 'date') {
+    } else if (ctype === 'date' || ctype === 'datetime-local') {
       datatype2 = 'date';
     }
   }
@@ -400,6 +415,92 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
           if (n < min2) {
             const minLabel = resources.label(ctrl2);
             const msg = r.format(r.value('error_min'), l, minLabel);
+            addErrorMessage(ctrl, msg);
+            return false;
+          }
+        }
+      }
+    }
+  } else if (ctype === 'date' || ctype === 'datetime-local') {
+    const v = new Date(ctrl.value);
+    if (!isNaN(v.getTime())) {
+      const smin = ctrl.getAttribute('min');
+      if (smin && smin.length > 0) {
+        if (smin === 'now') {
+          const d = new Date();
+          if (v < d) {
+            const msg = r.format(r.value('error_from_now'), l);
+            addErrorMessage(ctrl, msg);
+            return false;
+          }
+        } else if (smin === 'tomorrow') {
+          const d = addDays(trimTime(new Date()), 1);
+          if (v < d) {
+            const msg = r.format(r.value('error_from_tomorrow'), l);
+            addErrorMessage(ctrl, msg);
+            return false;
+          }
+        } else {
+          const d = new Date(smin);
+          if (!isNaN(d.getTime())) {
+            if (v < d) {
+              const v2 = formatLongDateTime(d, 'YYYY-MM-DD');
+              const msg = r.format(r.value('error_from'), l, v2);
+              addErrorMessage(ctrl, msg);
+              return false;
+            }
+          }
+        }
+      }
+      const smax = ctrl.getAttribute('max');
+      if (smax && smax.length > 0) {
+        if (smax === 'now') {
+          const d = new Date();
+          if (v > d) {
+            const msg = r.format(r.value('error_after_now'), l);
+            addErrorMessage(ctrl, msg);
+            return false;
+          }
+        } else if (smax === 'tomorrow') {
+          const d = addDays(trimTime(new Date()), 1);
+          if (v > d) {
+            const msg = r.format(r.value('error_after_tomorrow'), l);
+            addErrorMessage(ctrl, msg);
+            return false;
+          }
+        } else {
+          const d = new Date(smax);
+          if (!isNaN(d.getTime())) {
+            if (v > d) {
+              const v2 = formatLongDateTime(d, 'YYYY-MM-DD');
+              const msg = r.format(r.value('error_after'), l, v2);
+              addErrorMessage(ctrl, msg);
+              return false;
+            }
+          }
+        }
+      }
+      const minField = ctrl.getAttribute('min-field');
+      if (minField && ctrl.form) {
+        const ctrl2 = element(ctrl.form, minField);
+        if (ctrl2 && ctrl2.value.length > 0) {
+          const mi = new Date(ctrl2.value);
+          if (v < mi) {
+            const minLabel = resources.label(ctrl2);
+            const msg = r.format(r.value('error_min'), l, minLabel);
+            addErrorMessage(ctrl, msg);
+            return false;
+          }
+        }
+      }
+      const afterField = ctrl.getAttribute('after-field');
+      if (afterField && ctrl.form) {
+        const ctrl2 = element(ctrl.form, afterField);
+        if (ctrl2 && ctrl2.value.length > 0) {
+          const mi = new Date(ctrl2.value);
+          if (v <= mi) {
+            const minLabel = resources.label(ctrl2);
+            const msg = r.format(r.value('error_after'), l, minLabel);
             addErrorMessage(ctrl, msg);
             return false;
           }
@@ -733,4 +834,78 @@ export function escape(text?: string): string {
     text = text.replace(r5, '&lt;');
   }
   return text;
+}
+
+export function formatDate(d: Date | null | undefined, dateFormat?: string, upper?: boolean): string {
+  if (!d) {
+    return '';
+  }
+  let format = dateFormat && dateFormat.length > 0 ? dateFormat : 'M/D/YYYY';
+  if (upper) {
+    format = format.toUpperCase();
+  }
+  let valueItems = ['', '', ''];
+  const dateItems = format.split(/\/|\.| |-/);
+  let imonth  = dateItems.indexOf('M');
+  let iday    = dateItems.indexOf('D');
+  let iyear   = dateItems.indexOf('YYYY');
+  let fu = false;
+  if (imonth === -1) {
+    imonth  = dateItems.indexOf('MM');
+    fu = true;
+  }
+  if (iday === -1) {
+    iday  = dateItems.indexOf('DD');
+    fu = true;
+  }
+  if (iyear === -1) {
+    iyear  = dateItems.indexOf('YY');
+  }
+  valueItems[iday] = getD(d.getDate(), fu);
+  valueItems[imonth] = getD(d.getMonth() + 1, fu);
+  valueItems[iyear] = d.getFullYear().toString();
+  const s = detectSeparator(format);
+  return valueItems.join(s);
+}
+function detectSeparator(format: string): string {
+  const len = format.length;
+  for (let i = 0; i < len; i++) {
+    const c = format[i];
+    if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))) {
+      return c;
+    }
+  }
+  return '/';
+}
+function getD(n: number, fu: boolean): string {
+  return fu ? pad(n) : n.toString();
+}
+export function formatDateTime(date: Date | null | undefined, dateFormat?: string): string {
+  if (!date) {
+    return "";
+  }
+  const sd = formatDate(date, dateFormat);
+  if (sd.length === 0) {
+    return sd;
+  }
+  return sd + " " + formatTime(date);
+}
+export function formatLongDateTime(date: Date | null | undefined, dateFormat?: string): string {
+  if (!date) {
+    return "";
+  }
+  const sd = formatDate(date, dateFormat);
+  if (sd.length === 0) {
+    return sd;
+  }
+  return sd + " " + formatLongTime(date);
+}
+export function formatTime(d: Date): string {
+  return pad(d.getHours()) + ":" + pad(d.getMinutes());
+}
+export function formatLongTime(d: Date): string {
+  return pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
+}
+function pad(n: number): string {
+  return n < 10 ? '0' + n : n.toString();
 }
