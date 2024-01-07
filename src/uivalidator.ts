@@ -683,7 +683,7 @@ export function addError(form: HTMLFormElement, name: string, msg: string, direc
     const nameAttr = ctrl.getAttribute('name');
     const idAttr = ctrl.getAttribute('id');
     const dataAttr = ctrl.getAttribute('data-field');
-    if (name && (nameAttr === name || idAttr === name || dataAttr === 'name')) {
+    if (name && (nameAttr === name || idAttr === name || dataAttr === name)) {
       addErrorMessage(ctrl, msg, directParent);
       return true;
     }
@@ -836,7 +836,7 @@ export function escape(text?: string): string {
   return text;
 }
 
-export function formatDate(d: Date | null | undefined, dateFormat?: string, upper?: boolean): string {
+export function formatDate(d: Date | null | undefined, dateFormat?: string, full?: boolean, upper?: boolean): string {
   if (!d) {
     return '';
   }
@@ -846,26 +846,30 @@ export function formatDate(d: Date | null | undefined, dateFormat?: string, uppe
   }
   let valueItems = ['', '', ''];
   const dateItems = format.split(/\/|\.| |-/);
-  let imonth  = dateItems.indexOf('M');
   let iday    = dateItems.indexOf('D');
+  let imonth  = dateItems.indexOf('M');
   let iyear   = dateItems.indexOf('YYYY');
-  let fu = false;
-  if (imonth === -1) {
-    imonth  = dateItems.indexOf('MM');
-    fu = true;
-  }
+  let fm = full ? full : false;
+  let fd = full ? full : false;
+  let fy = true;
   if (iday === -1) {
     iday  = dateItems.indexOf('DD');
-    fu = true;
+    fd = true;
+  }
+  if (imonth === -1) {
+    imonth  = dateItems.indexOf('MM');
+    fm = true;
   }
   if (iyear === -1) {
     iyear  = dateItems.indexOf('YY');
+    fy = full ? full : false;
   }
-  valueItems[iday] = getD(d.getDate(), fu);
-  valueItems[imonth] = getD(d.getMonth() + 1, fu);
-  valueItems[iyear] = d.getFullYear().toString();
+  valueItems[iday] = getD(d.getDate(), fd);
+  valueItems[imonth] = getD(d.getMonth() + 1, fm);
+  valueItems[iyear] = getYear(d.getFullYear(), fy);
   const s = detectSeparator(format);
-  return valueItems.join(s);
+  const e = detectLastSeparator(format);
+  return valueItems[0] + s + valueItems[1] + e + valueItems[2];
 }
 function detectSeparator(format: string): string {
   const len = format.length;
@@ -877,24 +881,41 @@ function detectSeparator(format: string): string {
   }
   return '/';
 }
+function detectLastSeparator(format: string): string {
+  const len = format.length - 1;
+  for (let i = len; i >- 0; i--) {
+    const c = format[i];
+    if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))) {
+      return c;
+    }
+  }
+  return '/';
+}
+export function getYear(y: number, full?: boolean): string {
+  if (full || (y <= 99 && y >= -99)) {
+    return y.toString();
+  }
+  const s = y.toString();
+  return s.substring(s.length - 2);
+}
 function getD(n: number, fu: boolean): string {
   return fu ? pad(n) : n.toString();
 }
-export function formatDateTime(date: Date | null | undefined, dateFormat?: string): string {
+export function formatDateTime(date: Date | null | undefined, dateFormat?: string, full?: boolean, upper?: boolean): string {
   if (!date) {
     return "";
   }
-  const sd = formatDate(date, dateFormat);
+  const sd = formatDate(date, dateFormat, full, upper);
   if (sd.length === 0) {
     return sd;
   }
   return sd + " " + formatTime(date);
 }
-export function formatLongDateTime(date: Date | null | undefined, dateFormat?: string): string {
+export function formatLongDateTime(date: Date | null | undefined, dateFormat?: string, full?: boolean, upper?: boolean): string {
   if (!date) {
     return "";
   }
-  const sd = formatDate(date, dateFormat);
+  const sd = formatDate(date, dateFormat, full, upper);
   if (sd.length === 0) {
     return sd;
   }
