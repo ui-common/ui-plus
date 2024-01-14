@@ -209,6 +209,21 @@ export function checkMinLength(ctrl: HTMLInputElement, label?: string): boolean 
 export function trimTime(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate())
 }
+export function addYears(date: Date, n: number) {
+  const newDate = new Date(date);
+  newDate.setFullYear(newDate.getFullYear() + n);
+  return newDate;
+}
+export function addMonths(date: Date, n: number) {
+  const newDate = new Date(date);
+  newDate.setMonth(newDate.getMonth() + n);
+  return newDate;
+}
+export function addHours(date: Date, n: number) {
+  const newDate = new Date(date);
+  newDate.setHours(newDate.getHours() + n);
+  return newDate;
+}
 export function addDays(d: Date, n: number): Date {
   const newDate = new Date(d);
   newDate.setDate(newDate.getDate() + n);
