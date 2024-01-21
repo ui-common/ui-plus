@@ -281,11 +281,11 @@ export function currencyOnFocus(event: Event|any, locale: Locale, c?: string): v
     if (c && resources.currency && c.length > 0) {
       const currency = resources.currency(c);
       if (currency) {
-        if (v.indexOf(currency.currencySymbol) >= 0) {
-          v = v.replace(currency.currencySymbol, '');
+        if (v.indexOf(currency.symbol) >= 0) {
+          v = v.replace(currency.symbol, '');
         }
-        if (currency.currencyCode && v.indexOf(currency.currencyCode) >= 0) {
-          v = v.replace(currency.currencyCode, '');
+        if (currency.code && v.indexOf(currency.code) >= 0) {
+          v = v.replace(currency.code, '');
         }
       }
     }
@@ -314,8 +314,8 @@ function baseNumberOnBlur(event: Event|any, locale: Locale, isCurrency: boolean,
       }
       if (c && resources.currency && c.length > 0) {
         const currency = resources.currency(c);
-        if (currency && value2.indexOf(currency.currencySymbol) >= 0) {
-          value2 = value2.replace(currency.currencySymbol, '');
+        if (currency && value2.indexOf(currency.symbol) >= 0) {
+          value2 = value2.replace(currency.symbol, '');
         }
       }
       if (locale && value2.indexOf(locale.currencySymbol) >= 0) {

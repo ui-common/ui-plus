@@ -1,8 +1,8 @@
 import {Currency, Locale, resources} from './resources';
 
 const usd: Currency = {
-  currencyCode: 'USD',
-  currencySymbol: '$',
+  code: 'USD',
+  symbol: '$',
   decimalDigits: 2
 };
 const r3 = /,/g;
@@ -124,7 +124,7 @@ export class formatter {
       v = _formatNumber(value, currency.decimalDigits, '.', ',');
     }
     if (locale && includingCurrencySymbol) {
-      const symbol = (locale.currencyCode === currencyCode ? locale.currencySymbol : currency.currencySymbol);
+      const symbol = (locale.currencyCode === currencyCode ? locale.currencySymbol : currency.symbol);
       switch (locale.currencyPattern) {
         case 0:
           v = symbol + v;

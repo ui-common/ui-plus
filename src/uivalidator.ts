@@ -209,6 +209,13 @@ export function checkMinLength(ctrl: HTMLInputElement, label?: string): boolean 
 export function trimTime(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate())
 }
+export function trimMinutes(d: Date): Date {
+  const t = new Date(d);
+  t.setMinutes(0);
+  t.setSeconds(0);
+  t.setMilliseconds(0);
+  return t;
+}
 export function addYears(date: Date, n: number) {
   const newDate = new Date(date);
   newDate.setFullYear(newDate.getFullYear() + n);
@@ -350,8 +357,8 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
       }
       if (currencyCode && resources.currency && currencyCode.length > 0) {
         const currency = resources.currency(currencyCode);
-        if (currency && value.indexOf(currency.currencySymbol) >= 0) {
-          value = value.replace(currency.currencySymbol, '');
+        if (currency && value.indexOf(currency.symbol) >= 0) {
+          value = value.replace(currency.symbol, '');
         }
       }
     }
@@ -936,12 +943,77 @@ export function formatLongDateTime(date: Date | null | undefined, dateFormat?: s
   }
   return sd + " " + formatLongTime(date);
 }
+export function formatFullDateTime(date: Date | null | undefined, dateFormat?: string, s?: string, full?: boolean, upper?: boolean): string {
+  if (!date) {
+    return "";
+  }
+  const sd = formatDate(date, dateFormat, full, upper);
+  if (sd.length === 0) {
+    return sd;
+  }
+  return sd + " " + formatFullTime(date, s);
+}
 export function formatTime(d: Date): string {
   return pad(d.getHours()) + ":" + pad(d.getMinutes());
 }
 export function formatLongTime(d: Date): string {
   return pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
 }
+export function formatFullTime(d: Date, s?: string): string {
+  const se = (s && s.length > 0 ? s : '.');
+  return formatLongTime(d) + se + d.getMilliseconds();
+}
 function pad(n: number): string {
   return n < 10 ? '0' + n : n.toString();
+}
+export interface Hour {
+  hours: number;
+  minutes: number;
+  seconds: number;
+  milliseconds: number;
+}
+const mi = 1000;
+const mu = 60000;
+const hr = 3600000;
+export function diffHours(d1: Date, d2: Date): Hour|undefined {
+  if (!d1 || !d2) {
+    return undefined;
+  }
+  const d = Math.abs(d1.getTime() - d2.getTime());
+  d1.getMilliseconds
+  const ho = Math.floor(d/hr);
+  const m = Math.floor((d % hr) / mu);
+  const s = Math.floor((d % mu) / mi);
+  const l = Math.floor(d % hr);
+  const dh: Hour = {
+    hours: ho,
+    minutes: m,
+    seconds: s,
+    milliseconds: l
+  };
+  return dh;
+}
+export function formatDiffHours(h: Hour, m?: boolean, s?: string): string {
+  const d = `${h.hours}:${pad(h.minutes)}:${pad(h.seconds)}`;
+  if (m) {
+    const se = (s && s.length > 0 ? s : '.');
+    return d + se + h.milliseconds;
+  }
+  return d;
+}
+export function diffHoursToString(d1: Date, d2: Date, m?: boolean, s?: string): string {
+  const d = diffHours(d1, d2);
+  if (!d) {
+    return '';
+  }
+  return formatDiffHours(d, m, s);
+}
+export function fileSizeToString(bs: number): string {
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  if (bs <= 0) {
+    return '0 Bytes';
+  }
+  const i = Math.floor(Math.log(bs) / Math.log(1024));
+  const size = Math.round(bs / Math.pow(1024, i));
+  return `${size} ${sizes[i]}`;
 }

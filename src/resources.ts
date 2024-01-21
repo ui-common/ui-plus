@@ -3,8 +3,8 @@ export interface ResourceService {
   format(f: string, ...args: any[]): string;
 }
 export interface Currency {
-  currencyCode?: string;
-  currencySymbol: string;
+  code?: string;
+  symbol: string;
   decimalDigits: number;
 }
 export interface Locale {

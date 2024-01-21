@@ -36,8 +36,8 @@ export function getValue(ctrl: HTMLInputElement, locale?: Locale, currencyCode?:
         }
         if (c && resources.currency && c.length > 0) {
           const currency = resources.currency(c);
-          if (currency && value.indexOf(currency.currencySymbol) >= 0) {
-            value = value.replace(currency.currencySymbol, '');
+          if (currency && value.indexOf(currency.symbol) >= 0) {
+            value = value.replace(currency.symbol, '');
           }
         }
       }
@@ -164,8 +164,8 @@ export function decodeFromForm(form: HTMLFormElement, locale?: Locale, currencyC
           }
           if (c && resources.currency && c.length > 0) {
             const currency = resources.currency(c);
-            if (currency && v.indexOf(currency.currencySymbol) >= 0) {
-              v = v.replace(currency.currencySymbol, '');
+            if (currency && v.indexOf(currency.symbol) >= 0) {
+              v = v.replace(currency.symbol, '');
             }
           }
         }
