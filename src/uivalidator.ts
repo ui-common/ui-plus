@@ -961,10 +961,23 @@ export function formatLongTime(d: Date): string {
 }
 export function formatFullTime(d: Date, s?: string): string {
   const se = (s && s.length > 0 ? s : '.');
-  return formatLongTime(d) + se + d.getMilliseconds();
+  return formatLongTime(d) + se + pad3(d.getMilliseconds());
+}
+export function dateToString(d: Date, milli?: boolean): string {
+  const s = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+  if (milli) {
+    return s + pad3(d.getMilliseconds());
+  }
+  return s;
 }
 function pad(n: number): string {
   return n < 10 ? '0' + n : n.toString();
+}
+function pad3(n: number): string {
+  if (n >= 100) {
+    return n.toString();
+  }
+  return n < 10 ? '00' + n : '0' + n.toString();
 }
 export interface Hour {
   hours: number;
@@ -980,11 +993,10 @@ export function diffHours(d1: Date, d2: Date): Hour|undefined {
     return undefined;
   }
   const d = Math.abs(d1.getTime() - d2.getTime());
-  d1.getMilliseconds
   const ho = Math.floor(d/hr);
   const m = Math.floor((d % hr) / mu);
   const s = Math.floor((d % mu) / mi);
-  const l = Math.floor(d % hr);
+  const l = Math.floor(d % hr % mu % mi);
   const dh: Hour = {
     hours: ho,
     minutes: m,
@@ -997,7 +1009,7 @@ export function formatDiffHours(h: Hour, m?: boolean, s?: string): string {
   const d = `${h.hours}:${pad(h.minutes)}:${pad(h.seconds)}`;
   if (m) {
     const se = (s && s.length > 0 ? s : '.');
-    return d + se + h.milliseconds;
+    return d + se + pad3(h.milliseconds);
   }
   return d;
 }

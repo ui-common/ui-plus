@@ -6,14 +6,27 @@ export * from './uievent';
 export * from './service';
 export * from './reflect';
 
-export function toCamelCase(str: string): string {
-  const words = str.split('.');
+export function removeHtmlTags(s?: string): string {
+  return (s ? s.replace(/<.*?>/g, '') : '');
+}
+export function truncateText(text: string, max?: number): string {
+  if (!text) {
+    return '';
+  }
+  const m = max || 120;
+  return (text.length <= m ? text :  text.slice(0, m) + '...');
+}
+export function toCamelCase(str: string, chr?: string, up?: boolean): string {
+  const s = chr && chr.length > 0 ? chr : '-';
+  const words = str.split(s);
   const v = words.map((word, index) => {
-    if (index === 0) {
+    if (word.length === 0) {
       return word;
-    } else {
+    }
+    if (index > 0 || up) {
       return word.charAt(0).toUpperCase() + word.slice(1);
     }
+    return word.charAt(0).toLowerCase() + word.slice(1);
   });
   return v.join('');
 }
