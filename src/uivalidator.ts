@@ -206,41 +206,6 @@ export function checkMinLength(ctrl: HTMLInputElement, label?: string): boolean 
   }
   return false;
 }
-export function trimTime(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate())
-}
-export function trimMinutes(d: Date): Date {
-  const t = new Date(d);
-  t.setMinutes(0);
-  t.setSeconds(0);
-  t.setMilliseconds(0);
-  return t;
-}
-export function addYears(date: Date, n: number) {
-  const newDate = new Date(date);
-  newDate.setFullYear(newDate.getFullYear() + n);
-  return newDate;
-}
-export function addMonths(date: Date, n: number) {
-  const newDate = new Date(date);
-  newDate.setMonth(newDate.getMonth() + n);
-  return newDate;
-}
-export function addHours(date: Date, n: number) {
-  const newDate = new Date(date);
-  newDate.setHours(newDate.getHours() + n);
-  return newDate;
-}
-export function addDays(d: Date, n: number): Date {
-  const newDate = new Date(d);
-  newDate.setDate(newDate.getDate() + n);
-  return newDate;
-}
-export function addSeconds(d: Date, n: number): Date {
-  const newDate = new Date(d);
-  newDate.setSeconds(newDate.getSeconds() + n);
-  return newDate;
-}
 export function validateElement(ctrl: HTMLInputElement, locale?: Locale, includeReadOnly?: boolean): boolean {
   if (!ctrl) {
     return true;
@@ -858,6 +823,42 @@ export function escape(text?: string): string {
   return text;
 }
 
+export function trimTime(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+}
+export function trimMinutes(d: Date|string): Date {
+  const t = new Date(d);
+  t.setMinutes(0);
+  t.setSeconds(0);
+  t.setMilliseconds(0);
+  return t;
+}
+export function addYears(date: Date, n: number) {
+  const newDate = new Date(date);
+  newDate.setFullYear(newDate.getFullYear() + n);
+  return newDate;
+}
+export function addMonths(date: Date, n: number) {
+  const newDate = new Date(date);
+  newDate.setMonth(newDate.getMonth() + n);
+  return newDate;
+}
+export function addHours(date: Date, n: number) {
+  const newDate = new Date(date);
+  newDate.setHours(newDate.getHours() + n);
+  return newDate;
+}
+export function addDays(d: Date, n: number): Date {
+  const newDate = new Date(d);
+  newDate.setDate(newDate.getDate() + n);
+  return newDate;
+}
+export function addSeconds(d: Date, n: number): Date {
+  const newDate = new Date(d);
+  newDate.setSeconds(newDate.getSeconds() + n);
+  return newDate;
+}
+
 export function formatDate(d: Date | null | undefined, dateFormat?: string, full?: boolean, upper?: boolean): string {
   if (!d) {
     return '';
@@ -866,32 +867,33 @@ export function formatDate(d: Date | null | undefined, dateFormat?: string, full
   if (upper) {
     format = format.toUpperCase();
   }
-  let valueItems = ['', '', ''];
-  const dateItems = format.split(/\/|\.| |-/);
-  let iday    = dateItems.indexOf('D');
-  let imonth  = dateItems.indexOf('M');
-  let iyear   = dateItems.indexOf('YYYY');
+  let arr = ['', '', ''];
+  const items = format.split(/\/|\.| |-/);
+  let iday    = items.indexOf('D');
+  let im      = items.indexOf('M');
+  let iyear   = items.indexOf('YYYY');
   let fm = full ? full : false;
   let fd = full ? full : false;
   let fy = true;
   if (iday === -1) {
-    iday  = dateItems.indexOf('DD');
+    iday  = items.indexOf('DD');
     fd = true;
   }
-  if (imonth === -1) {
-    imonth  = dateItems.indexOf('MM');
+  if (im === -1) {
+    im  = items.indexOf('MM');
     fm = true;
   }
   if (iyear === -1) {
-    iyear  = dateItems.indexOf('YY');
+    iyear  = items.indexOf('YY');
     fy = full ? full : false;
   }
-  valueItems[iday] = getD(d.getDate(), fd);
-  valueItems[imonth] = getD(d.getMonth() + 1, fm);
-  valueItems[iyear] = getYear(d.getFullYear(), fy);
+  arr[iday] = getD(d.getDate(), fd);
+  arr[im] = getD(d.getMonth() + 1, fm);
+  arr[iyear] = getYear(d.getFullYear(), fy);
   const s = detectSeparator(format);
   const e = detectLastSeparator(format);
-  return valueItems[0] + s + valueItems[1] + e + valueItems[2];
+  const l = items.length === 4 ? format[format.length - 1] : '';
+  return arr[0] + s + arr[1] + e + arr[2] + l;
 }
 function detectSeparator(format: string): string {
   const len = format.length;
@@ -904,7 +906,7 @@ function detectSeparator(format: string): string {
   return '/';
 }
 function detectLastSeparator(format: string): string {
-  const len = format.length - 1;
+  const len = format.length - 3;
   for (let i = len; i >- 0; i--) {
     const c = format[i];
     if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))) {
@@ -1019,13 +1021,4 @@ export function diffHoursToString(d1: Date, d2: Date, m?: boolean, s?: string): 
     return '';
   }
   return formatDiffHours(d, m, s);
-}
-export function fileSizeToString(bs: number): string {
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  if (bs <= 0) {
-    return '0 Bytes';
-  }
-  const i = Math.floor(Math.log(bs) / Math.log(1024));
-  const size = Math.round(bs / Math.pow(1024, i));
-  return `${size} ${sizes[i]}`;
 }
