@@ -143,3 +143,24 @@ export class resources {
     return null;
   }
 }
+export function findParent(ele: HTMLElement, className: string): HTMLElement|null {
+  let p: HTMLElement|null = ele
+  while (true) {
+    p = p.parentElement;
+    if (!p) {
+      return null;
+    }
+    if (p.classList.contains(className)) {
+      return p
+    }
+  }
+}
+export function toggleClass(ele: HTMLElement, className: string): boolean {
+  if (ele.classList.contains(className)) {
+    ele.classList.remove(className);
+    return false;
+  } else {
+    ele.classList.add(className);
+    return true;
+  }
+}
