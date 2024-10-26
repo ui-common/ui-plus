@@ -858,7 +858,9 @@ export function addSeconds(d: Date, n: number): Date {
   newDate.setSeconds(newDate.getSeconds() + n);
   return newDate;
 }
-
+export function createDate(s: string): Date | undefined {
+  return s.length === 0 ? undefined : new Date(s)
+}
 export function formatDate(d: Date | null | undefined, dateFormat?: string, full?: boolean, upper?: boolean): string {
   if (!d) {
     return '';
@@ -924,6 +926,19 @@ export function getYear(y: number, full?: boolean): string {
 }
 function getD(n: number, fu: boolean): string {
   return fu ? pad(n) : n.toString();
+}
+export function datetimeToString(date?: Date | string): string | undefined {
+  if (!date || date === "") {
+    return undefined
+  }
+  const d2 = typeof date !== "string" ? date : new Date(date)
+  const year = d2.getFullYear()
+  const month = pad(d2.getMonth() + 1)
+  const day = pad(d2.getDate())
+  const hours = pad(d2.getHours())
+  const minutes = pad(d2.getMinutes())
+  const seconds = pad(d2.getSeconds())
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
 }
 export function formatDateTime(date: Date | null | undefined, dateFormat?: string, full?: boolean, upper?: boolean): string {
   if (!date) {
