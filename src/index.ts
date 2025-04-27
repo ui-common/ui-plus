@@ -1,11 +1,11 @@
-export * from './formutil';
-export * from './resources';
-export * from './formatter';
-export * from './reflect';
-export * from './ui';
-export * from './uivalidator';
-export * from './uievent';
-export * from './service';
+export * from "./formutil";
+export * from "./resources";
+export * from "./formatter";
+export * from "./reflect";
+export * from "./ui";
+export * from "./uivalidator";
+export * from "./uievent";
+export * from "./service";
 
 export function fileSizeToString(bs: number): string {
   const sizes = ["Bytes", "KB", "MB", "GB", "TB"]

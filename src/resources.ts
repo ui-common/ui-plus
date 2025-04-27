@@ -57,32 +57,32 @@ export class resources {
   static date?: (value: string, format: string) => Date | null | undefined = parseDate
   static currency?: (currencyCode: string) => Currency | undefined
 
-  static label(input: HTMLElement): string {
-    if (!input) {
+  static label(ele: HTMLElement): string {
+    if (!ele) {
       return ""
     }
-    let l = input.getAttribute("data-label")
+    let l = ele.getAttribute("data-label")
     if (l) {
       return l
     } else if (!l || l.length === 0) {
-      let key = input.getAttribute("data-resource")
+      let key = ele.getAttribute("data-resource")
       /*
       if (!key || key.length === 0) {
         key = input.getAttribute('resource-key');
       }*/
       if (key !== null && key.length > 0) {
         l = resources.resource.value(key)
-        input.setAttribute("label", l)
+        ele.setAttribute("label", l)
         return l
       } else {
-        return resources.labelFromContainer(input)
+        return resources.labelFromContainer(ele)
       }
     } else {
-      return resources.labelFromContainer(input)
+      return resources.labelFromContainer(ele)
     }
   }
-  static labelFromContainer(input: HTMLElement): string {
-    const parent = resources.container(input)
+  static labelFromContainer(ele: HTMLElement): string {
+    const parent = resources.container(ele)
     if (parent && parent.nodeName === "LABEL" && parent.childNodes.length > 0) {
       const first = parent.childNodes[0]
       if (first.nodeType === 3) {
@@ -108,8 +108,8 @@ export class resources {
     }
     return ""
   }
-  static container(ctrl: HTMLElement): HTMLElement | null {
-    const p = ctrl.parentElement
+  static container(ele: HTMLElement): HTMLElement | null {
+    const p = ele.parentElement
     if (!p) {
       return null
     }
@@ -143,8 +143,8 @@ export class resources {
     return null
   }
 }
-export function findParent(ele: HTMLElement, className: string): HTMLElement | null {
-  let p: HTMLElement | null = ele
+export function findParent(e: HTMLElement, className: string): HTMLElement | null {
+  let p: HTMLElement | null = e
   while (true) {
     p = p.parentElement
     if (!p) {
@@ -155,12 +155,12 @@ export function findParent(ele: HTMLElement, className: string): HTMLElement | n
     }
   }
 }
-export function toggleClass(ele: HTMLElement, className: string): boolean {
-  if (ele.classList.contains(className)) {
-    ele.classList.remove(className)
+export function toggleClass(e: HTMLElement, className: string): boolean {
+  if (e.classList.contains(className)) {
+    e.classList.remove(className)
     return false
   } else {
-    ele.classList.add(className)
+    e.classList.add(className)
     return true
   }
 }

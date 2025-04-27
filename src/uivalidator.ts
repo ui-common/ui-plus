@@ -138,10 +138,10 @@ export function showFormError(
   }
   return errs
 }
-export function validateElements(controls: HTMLInputElement[], locale?: Locale): boolean {
+export function validateElements(elements: HTMLInputElement[], locale?: Locale): boolean {
   let valid = true
   let errorCtrl: HTMLInputElement | null = null
-  for (const c of controls) {
+  for (const c of elements) {
     if (!validateElement(c, locale)) {
       valid = false
       if (!errorCtrl) {
@@ -157,92 +157,92 @@ export function validateElements(controls: HTMLInputElement[], locale?: Locale):
   }
   return valid
 }
-export function checkRequired(ctrl: HTMLInputElement, label?: string): boolean {
-  const value = ctrl.value
-  let required = ctrl.getAttribute("config-required")
+export function checkRequired(ele: HTMLInputElement, label?: string): boolean {
+  const value = ele.value
+  let required = ele.getAttribute("config-required")
   if (required == null || required === undefined) {
-    if (ctrl.nodeName === "SELECT") {
-      required = ctrl.hasAttribute("required") ? "true" : "false"
+    if (ele.nodeName === "SELECT") {
+      required = ele.hasAttribute("required") ? "true" : "false"
     } else {
-      required = ctrl.getAttribute("required")
+      required = ele.getAttribute("required")
     }
   }
   if (required !== null && required !== "false") {
     if (value.length === 0) {
       if (!label) {
-        label = resources.label(ctrl)
+        label = resources.label(ele)
       }
-      const errorKey = ctrl.nodeName === "SELECT" ? "error_select_required" : "error_required"
+      const errorKey = ele.nodeName === "SELECT" ? "error_select_required" : "error_required"
       const r = resources.resource
       let s = r.value(errorKey)
       if (!s || s === "") {
         s = r.value("error_required")
       }
       const msg = r.format(s, label)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return true
     }
   }
   return false
 }
-export function checkMaxLength(ctrl: HTMLInputElement, label?: string): boolean {
-  const maxlength = ctrl.getAttribute("maxlength")
+export function checkMaxLength(ele: HTMLInputElement, label?: string): boolean {
+  const maxlength = ele.getAttribute("maxlength")
   if (maxlength && !isNaN(maxlength as any)) {
-    const value = ctrl.value
+    const value = ele.value
     const imaxlength = parseInt(maxlength, 10)
     if (value.length > imaxlength) {
       const r = resources.resource
       if (!label || label === "") {
-        label = resources.label(ctrl)
+        label = resources.label(ele)
       }
       const msg = r.format(r.value("error_maxlength"), label, maxlength)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return true
     }
   }
   return false
 }
 
-export function checkMinLength(ctrl: HTMLInputElement, label?: string): boolean {
-  const minlength = ctrl.getAttribute("minlength")
+export function checkMinLength(ele: HTMLInputElement, label?: string): boolean {
+  const minlength = ele.getAttribute("minlength")
   if (minlength !== null && !isNaN(minlength as any)) {
-    const value = ctrl.value
+    const value = ele.value
     const iminlength = parseInt(minlength, 10)
     if (value.length < iminlength) {
       const r = resources.resource
       if (!label || label === "") {
-        label = resources.label(ctrl)
+        label = resources.label(ele)
       }
       const msg = r.format(r.value("error_minlength"), label, minlength)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return true
     }
   }
   return false
 }
-export function validateElement(ctrl: HTMLInputElement, locale?: Locale, includeReadOnly?: boolean): boolean {
-  if (!ctrl) {
+export function validateElement(ele: HTMLInputElement, locale?: Locale, includeReadOnly?: boolean): boolean {
+  if (!ele) {
     return true
   }
 
-  if (!ctrl || (ctrl.readOnly && includeReadOnly === false) || ctrl.disabled || ctrl.hidden || ctrl.style.display === "none") {
+  if (!ele || (ele.readOnly && includeReadOnly === false) || ele.disabled || ele.hidden || ele.style.display === "none") {
     return true
   }
-  let nodeName = ctrl.nodeName
+  let nodeName = ele.nodeName
   if (nodeName === "INPUT") {
-    const type = ctrl.getAttribute("type")
+    const type = ele.getAttribute("type")
     if (type !== null) {
       nodeName = type.toUpperCase()
     }
   }
-  if (ctrl.tagName === "SELECT") {
+  if (ele.tagName === "SELECT") {
     nodeName = "SELECT"
   }
   if (nodeName === "BUTTON" || nodeName === "RESET" || nodeName === "SUBMIT") {
     return true
   }
 
-  const parent = resources.container(ctrl)
+  const parent = resources.container(ele)
   if (parent) {
     if (parent.hidden || parent.style.display === "none") {
       return true
@@ -254,10 +254,10 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
     }
   }
 
-  let value = ctrl.value
+  let value = ele.value
 
-  const l = resources.label(ctrl)
-  if (checkRequired(ctrl, l)) {
+  const l = resources.label(ele)
+  if (checkRequired(ele, l)) {
     return false
   }
 
@@ -265,29 +265,29 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
     return true
   }
   const r = resources.resource
-  if (checkMaxLength(ctrl, l)) {
+  if (checkMaxLength(ele, l)) {
     return false
   }
-  if (checkMinLength(ctrl, l)) {
+  if (checkMinLength(ele, l)) {
     return false
   }
-  const minlength = ctrl.getAttribute("minlength")
+  const minlength = ele.getAttribute("minlength")
   if (minlength !== null && !isNaN(minlength as any)) {
     const iminlength = parseInt(minlength, 10)
     if (value.length < iminlength) {
       const msg = r.format(r.value("error_minlength"), l, minlength)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     }
   }
-  let ctype = ctrl.getAttribute("type")
+  let ctype = ele.getAttribute("type")
   if (ctype) {
     ctype = ctype.toLowerCase()
   }
-  let datatype2 = ctrl.getAttribute("data-type")
-  let pattern = ctrl.getAttribute("config-pattern")
+  let datatype2 = ele.getAttribute("data-type")
+  let pattern = ele.getAttribute("config-pattern")
   if (!pattern) {
-    pattern = ctrl.getAttribute("pattern")
+    pattern = ele.getAttribute("pattern")
   }
   if (ctype === "email") {
     datatype2 = "email"
@@ -302,20 +302,20 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
   }
 
   if (pattern) {
-    let flags = ctrl.getAttribute("config-pattern-flags")
+    let flags = ele.getAttribute("config-pattern-flags")
     if (!flags) {
-      flags = ctrl.getAttribute("flags")
+      flags = ele.getAttribute("flags")
     }
     if (!flags) {
-      flags = ctrl.getAttribute("pattern-flags")
+      flags = ele.getAttribute("pattern-flags")
     }
     if (!isValidPattern(value, pattern, flags)) {
-      const resource_key = ctrl.getAttribute("resource-key") || ctrl.getAttribute("config-pattern-error-key")
+      const resource_key = ele.getAttribute("resource-key") || ele.getAttribute("config-pattern-error-key")
       if (resource_key) {
         const msg = r.format(r.value(resource_key), l)
-        addErrorMessage(ctrl, msg)
+        addErrorMessage(ele, msg)
       } else {
-        addErrorMessage(ctrl, "Pattern error")
+        addErrorMessage(ele, "Pattern error")
       }
       return false
     }
@@ -323,14 +323,14 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
   if (datatype2 === "email") {
     if (value.length > 0 && !isEmail(value)) {
       const msg = r.format(r.value("error_email"), l)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "number" || datatype2 === "int" || datatype2 === "currency" || datatype2 === "string-currency" || datatype2 === "percentage") {
     if (datatype2 === "currency" || datatype2 === "string-currency") {
-      let currencyCode = ctrl.getAttribute("currency-code")
-      if (!currencyCode && ctrl.form) {
-        currencyCode = ctrl.form.getAttribute("currency-code")
+      let currencyCode = ele.getAttribute("currency-code")
+      if (!currencyCode && ele.form) {
+        currencyCode = ele.form.getAttribute("currency-code")
       }
       if (currencyCode && resources.currency && currencyCode.length > 0) {
         const currency = resources.currency(currencyCode)
@@ -355,33 +355,33 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
     }
     if (isNaN(value as any)) {
       const msg = r.format(r.value("error_number"), l)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     }
     if (datatype2 === "int" && !isDigitOnly(value)) {
       const msg = r.format(r.value("error_number"), l)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     }
     const n = parseFloat(value)
-    const smin = ctrl.getAttribute("min")
+    const smin = ele.getAttribute("min")
     let min: number | undefined
     if (smin !== null && smin.length > 0) {
       min = parseFloat(smin)
       if (n < min) {
         let msg = r.format(r.value("error_min"), l, min)
-        const smaxd = ctrl.getAttribute("max")
+        const smaxd = ele.getAttribute("max")
         if (smaxd !== null && smaxd.length > 0) {
           const maxd = parseFloat(smaxd)
           if (maxd === min) {
             msg = r.format(r.value("error_equal"), l, maxd)
           }
         }
-        addErrorMessage(ctrl, msg)
+        addErrorMessage(ele, msg)
         return false
       }
     }
-    const smax = ctrl.getAttribute("max")
+    const smax = ele.getAttribute("max")
     if (smax !== null && smax.length > 0) {
       const max = parseFloat(smax)
       if (n > max) {
@@ -389,13 +389,13 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
         if (!min && max === min) {
           msg = r.format(r.value("error_equal"), l)
         }
-        addErrorMessage(ctrl, msg)
+        addErrorMessage(ele, msg)
         return false
       }
     }
-    const minField = ctrl.getAttribute("min-field")
-    if (minField && ctrl.form) {
-      const ctrl2 = element(ctrl.form, minField)
+    const minField = ele.getAttribute("min-field")
+    if (minField && ele.form) {
+      const ctrl2 = element(ele.form, minField)
       if (ctrl2) {
         let smin2 = ctrl2.value // const smin2 = ctrl2.value.replace(UIValidationUtil._nreg, '');
         if (locale && smin2.indexOf(locale.currencySymbol) >= 0) {
@@ -414,29 +414,29 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
           if (n < min2) {
             const minLabel = resources.label(ctrl2)
             const msg = r.format(r.value("error_min"), l, minLabel)
-            addErrorMessage(ctrl, msg)
+            addErrorMessage(ele, msg)
             return false
           }
         }
       }
     }
   } else if (ctype === "date" || ctype === "datetime-local") {
-    const v = new Date(ctrl.value)
+    const v = new Date(ele.value)
     if (!isNaN(v.getTime())) {
-      const smin = ctrl.getAttribute("min")
+      const smin = ele.getAttribute("min")
       if (smin && smin.length > 0) {
         if (smin === "now") {
           const d = new Date()
           if (v < d) {
             const msg = r.format(r.value("error_from_now"), l)
-            addErrorMessage(ctrl, msg)
+            addErrorMessage(ele, msg)
             return false
           }
         } else if (smin === "tomorrow") {
           const d = addDays(trimTime(new Date()), 1)
           if (v < d) {
             const msg = r.format(r.value("error_from_tomorrow"), l)
-            addErrorMessage(ctrl, msg)
+            addErrorMessage(ele, msg)
             return false
           }
         } else {
@@ -445,26 +445,26 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
             if (v < d) {
               const v2 = formatLongDateTime(d, "YYYY-MM-DD")
               const msg = r.format(r.value("error_from"), l, v2)
-              addErrorMessage(ctrl, msg)
+              addErrorMessage(ele, msg)
               return false
             }
           }
         }
       }
-      const smax = ctrl.getAttribute("max")
+      const smax = ele.getAttribute("max")
       if (smax && smax.length > 0) {
         if (smax === "now") {
           const d = new Date()
           if (v > d) {
             const msg = r.format(r.value("error_after_now"), l)
-            addErrorMessage(ctrl, msg)
+            addErrorMessage(ele, msg)
             return false
           }
         } else if (smax === "tomorrow") {
           const d = addDays(trimTime(new Date()), 1)
           if (v > d) {
             const msg = r.format(r.value("error_after_tomorrow"), l)
-            addErrorMessage(ctrl, msg)
+            addErrorMessage(ele, msg)
             return false
           }
         } else {
@@ -473,46 +473,46 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
             if (v > d) {
               const v2 = formatLongDateTime(d, "YYYY-MM-DD")
               const msg = r.format(r.value("error_after"), l, v2)
-              addErrorMessage(ctrl, msg)
+              addErrorMessage(ele, msg)
               return false
             }
           }
         }
       }
-      const minField = ctrl.getAttribute("min-field")
-      if (minField && ctrl.form) {
-        const ctrl2 = element(ctrl.form, minField)
+      const minField = ele.getAttribute("min-field")
+      if (minField && ele.form) {
+        const ctrl2 = element(ele.form, minField)
         if (ctrl2 && ctrl2.value.length > 0) {
           const mi = new Date(ctrl2.value)
           if (v < mi) {
             const minLabel = resources.label(ctrl2)
             const msg = r.format(r.value("error_min"), l, minLabel)
-            addErrorMessage(ctrl, msg)
+            addErrorMessage(ele, msg)
             return false
           }
         }
       }
-      const afterField = ctrl.getAttribute("after-field")
-      if (afterField && ctrl.form) {
-        const ctrl2 = element(ctrl.form, afterField)
+      const afterField = ele.getAttribute("after-field")
+      if (afterField && ele.form) {
+        const ctrl2 = element(ele.form, afterField)
         if (ctrl2 && ctrl2.value.length > 0) {
           const mi = new Date(ctrl2.value)
           if (v <= mi) {
             const minLabel = resources.label(ctrl2)
             const msg = r.format(r.value("error_after"), l, minLabel)
-            addErrorMessage(ctrl, msg)
+            addErrorMessage(ele, msg)
             return false
           }
         }
       }
     }
   } else if (resources.date && datatype2 === "date" && value !== "") {
-    let dateFormat: string | null = ctrl.getAttribute("date-format")
+    let dateFormat: string | null = ele.getAttribute("date-format")
     if (!dateFormat || dateFormat.length === 0) {
-      dateFormat = ctrl.getAttribute("uib-datepicker-popup")
+      dateFormat = ele.getAttribute("uib-datepicker-popup")
     }
     if (!dateFormat || dateFormat.length === 0) {
-      dateFormat = ctrl.getAttribute("datepicker-popup")
+      dateFormat = ele.getAttribute("datepicker-popup")
     } /*
     if (!dateFormat || dateFormat.length === 0) {
       dateFormat = 'MM/DD/YYYY';
@@ -525,11 +525,11 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
     if (!dt) {
       // (isDate === false) {
       const msg = r.format(r.value("error_date"), l)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     } else {
-      const maxdate = ctrl.getAttribute("max")
-      const mindate = ctrl.getAttribute("min")
+      const maxdate = ele.getAttribute("max")
+      const mindate = ele.getAttribute("min")
       if (maxdate !== null || mindate !== null) {
         if (maxdate !== null) {
           let dmaxdate: Date | undefined
@@ -539,7 +539,7 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
           }
           if (dmaxdate && dt > dmaxdate) {
             const msg = r.format(r.value("error_max_date"), l)
-            addErrorMessage(ctrl, msg)
+            addErrorMessage(ele, msg)
             return false
           }
         }
@@ -551,7 +551,7 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
           }
           if (dmindate && dt < dmindate) {
             const msg = r.format(r.value("error_min_date"), l)
-            addErrorMessage(ctrl, msg)
+            addErrorMessage(ele, msg)
             return false
           }
         }
@@ -560,80 +560,80 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
   } else if (datatype2 === "url") {
     if (!isUrl(value)) {
       const msg = r.format(r.value("error_url"), l)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "phone") {
     const phoneStr = formatter.removePhoneFormat(value)
     if (!tel.isPhone(phoneStr)) {
       const msg = r.format(r.value("error_phone"), l)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "fax") {
     const phoneStr = formatter.removeFaxFormat(value)
     if (!tel.isFax(phoneStr)) {
       const msg = r.format(r.value("error_fax"), l)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "code") {
     if (!isValidCode(value)) {
       const msg = r.format(r.value("error_code"), l)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "dash-code") {
     if (!isDashCode(value)) {
       const msg = r.format(r.value("error_dash_code"), l)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "digit") {
     if (!isDigitOnly(value)) {
       const msg = r.format(r.value("error_digit"), l)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "dash-digit") {
     if (!isDashDigit(value)) {
       const msg = r.format(r.value("error_dash_digit"), l)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "routing-number") {
     // business-tax-id
     if (!isDashDigit(value)) {
       const msg = r.format(r.value("error_routing_number"), l)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "check-number") {
     if (!isCheckNumber(value)) {
       const msg = r.format(r.value("error_check_number"), l)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "post-code") {
-    let countryCode = ctrl.getAttribute("country-code")
+    let countryCode = ele.getAttribute("country-code")
     if (countryCode) {
       countryCode = countryCode.toUpperCase()
       if (countryCode === "US" || countryCode === "USA") {
         if (!isUSPostalCode(value)) {
           const msg = r.format(r.value("error_us_post_code"), l)
-          addErrorMessage(ctrl, msg)
+          addErrorMessage(ele, msg)
           return false
         }
       } else if (countryCode === "CA" || countryCode === "CAN") {
         if (!isCAPostalCode(value)) {
           const msg = r.format(r.value("error_ca_post_code"), l)
-          addErrorMessage(ctrl, msg)
+          addErrorMessage(ele, msg)
           return false
         }
       } else {
         if (!isDashCode(value)) {
           const msg = r.format(r.value("error_post_code"), l)
-          addErrorMessage(ctrl, msg)
+          addErrorMessage(ele, msg)
           return false
         }
       }
@@ -641,17 +641,17 @@ export function validateElement(ctrl: HTMLInputElement, locale?: Locale, include
   } else if (datatype2 === "ipv4") {
     if (!isIPv4(value)) {
       const msg = r.format(r.value("error_ipv4"), l)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "ipv6") {
     if (!isIPv6(value)) {
       const msg = r.format(r.value("error_ipv6"), l)
-      addErrorMessage(ctrl, msg)
+      addErrorMessage(ele, msg)
       return false
     }
   }
-  removeError(ctrl)
+  removeError(ele)
   return true
 }
 export function setValidControl(ctrl: HTMLInputElement): void {
@@ -705,20 +705,20 @@ export function removeErr(form: HTMLFormElement, name: string, directParent?: bo
   }
   return false
 }
-export function addErrorMessage(ctrl: HTMLInputElement, msg?: string, directParent?: boolean): void {
-  if (!ctrl) {
+export function addErrorMessage(ele: HTMLInputElement, msg?: string, directParent?: boolean): void {
+  if (!ele) {
     return
   }
   if (!msg) {
     msg = "Error"
   }
-  if (!ctrl.classList.contains("invalid")) {
-    ctrl.classList.add("invalid")
+  if (!ele.classList.contains("invalid")) {
+    ele.classList.add("invalid")
   }
-  if (!ctrl.classList.contains("ng-touched")) {
-    ctrl.classList.add("ng-touched")
+  if (!ele.classList.contains("ng-touched")) {
+    ele.classList.add("ng-touched")
   }
-  const parent = directParent ? ctrl.parentElement : resources.container(ctrl)
+  const parent = directParent ? ele.parentElement : resources.container(ele)
   if (parent === null) {
     return
   }
@@ -785,17 +785,17 @@ export const removeErrors = (ids?: string | string[]) => {
     }
   }
 }
-export function removeError(ctrl: HTMLInputElement, directParent?: boolean): void {
-  if (!ctrl) {
+export function removeError(ele: HTMLInputElement, directParent?: boolean): void {
+  if (!ele) {
     return
   }
-  ctrl.classList.remove("valid")
-  ctrl.classList.remove("md-input-invalid")
-  ctrl.classList.remove("ng-invalid")
-  ctrl.classList.remove("invalid")
-  ctrl.classList.remove("ng-touched")
+  ele.classList.remove("valid")
+  ele.classList.remove("md-input-invalid")
+  ele.classList.remove("ng-invalid")
+  ele.classList.remove("invalid")
+  ele.classList.remove("ng-touched")
 
-  const parent = directParent ? ctrl.parentElement : resources.container(ctrl)
+  const parent = directParent ? ele.parentElement : resources.container(ele)
   if (parent != null) {
     parent.classList.remove("valid")
     parent.classList.remove("invalid")
