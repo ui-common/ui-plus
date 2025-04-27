@@ -106,21 +106,21 @@ export function showFormError(
   for (let i = 0; i < length; i++) {
     let hasControl = false
     for (let j = 0; j < len; j++) {
-      const ctrl = form[j] as HTMLInputElement
-      const dataField = ctrl.getAttribute("data-field")
-      if (dataField === errors[i].field || ctrl.name === errors[i].field) {
-        addErrorMessage(ctrl, errors[i].message, directParent)
+      const ele = form[j] as HTMLInputElement
+      const dataField = ele.getAttribute("data-field")
+      if (dataField === errors[i].field || ele.name === errors[i].field) {
+        addErrorMessage(ele, errors[i].message, directParent)
         hasControl = true
         if (!errorCtrl) {
-          errorCtrl = ctrl
+          errorCtrl = ele
         }
       }
     }
     if (hasControl === false) {
       if (includeId) {
-        const ctrl = document.getElementById(errors[i].field)
-        if (ctrl) {
-          addErrorMessage(ctrl as HTMLInputElement, errors[i].message, directParent)
+        const ele = document.getElementById(errors[i].field)
+        if (ele) {
+          addErrorMessage(ele as HTMLInputElement, errors[i].message, directParent)
         } else {
           errs.push(errors[i])
         }
@@ -129,10 +129,10 @@ export function showFormError(
       }
     }
   }
-  if (!focusFirst) {
+  if (focusFirst !== false) {
     focusFirst = true
   }
-  if (errorCtrl !== null && focusFirst === true) {
+  if (errorCtrl && focusFirst === true) {
     errorCtrl.focus()
     errorCtrl.scrollIntoView()
   }
@@ -705,6 +705,27 @@ export function removeErr(form: HTMLFormElement, name: string, directParent?: bo
   }
   return false
 }
+
+export function addClass(ele: Element | null | undefined, className: string): boolean {
+  if (ele) {
+    if (!ele.classList.contains(className)) {
+      ele.classList.add(className)
+      return true
+    }
+  }
+  return false
+}
+export function addClasses(ele: Element | null | undefined, classes: string[]): number {
+  let count = 0
+  if (ele) {
+    for (let i = 0; i < classes.length; i++) {
+      if (addClass(ele, classes[i])) {
+        count++
+      }
+    }
+  }
+  return count
+}
 export function addErrorMessage(ele: HTMLInputElement, msg?: string, directParent?: boolean): void {
   if (!ele) {
     return
@@ -712,23 +733,13 @@ export function addErrorMessage(ele: HTMLInputElement, msg?: string, directParen
   if (!msg) {
     msg = "Error"
   }
-  if (!ele.classList.contains("invalid")) {
-    ele.classList.add("invalid")
-  }
-  if (!ele.classList.contains("ng-touched")) {
-    ele.classList.add("ng-touched")
-  }
+  addClass(ele, "invalid")
+  // addClass(ele, "ng-touched")
   const parent = directParent ? ele.parentElement : resources.container(ele)
   if (parent === null) {
     return
   }
-  if (parent.nodeName && parent.nodeName === "LABEL" && !parent.classList.contains("invalid")) {
-    parent.classList.add("invalid")
-  } else if ((parent.classList.contains("form-group") || parent.classList.contains("field")) && !parent.classList.contains("invalid")) {
-    parent.classList.add("invalid")
-  } else if (parent.nodeName === "MD-INPUT-CONTAINER" && !parent.classList.contains("md-input-invalid")) {
-    parent.classList.add("md-input-invalid")
-  }
+  addClass(parent, "invalid")
 
   const span = parent.querySelector(".span-error")
 
@@ -785,26 +796,40 @@ export const removeErrors = (ids?: string | string[]) => {
     }
   }
 }
+const errorArr = ["valid", "invalid", "ng-invalid", "ng-touched"]
 export function removeError(ele: HTMLInputElement, directParent?: boolean): void {
   if (!ele) {
     return
   }
-  ele.classList.remove("valid")
-  ele.classList.remove("md-input-invalid")
-  ele.classList.remove("ng-invalid")
-  ele.classList.remove("invalid")
-  ele.classList.remove("ng-touched")
-
+  removeClasses(ele, errorArr)
   const parent = directParent ? ele.parentElement : resources.container(ele)
-  if (parent != null) {
-    parent.classList.remove("valid")
-    parent.classList.remove("invalid")
-    parent.classList.remove("md-input-invalid")
+  if (parent) {
+    removeClasses(parent, errorArr)
     const span = parent.querySelector(".span-error")
     if (span !== null && span !== undefined) {
       parent.removeChild(span)
     }
   }
+}
+export function removeClass(ele: Element | null | undefined, className: string): boolean {
+  if (ele) {
+    if (ele && ele.classList.contains(className)) {
+      ele.classList.remove(className)
+      return true
+    }
+  }
+  return false
+}
+export function removeClasses(ele: Element | null | undefined, classes: string[]): number {
+  let count = 0
+  if (ele) {
+    for (let i = 0; i < classes.length; i++) {
+      if (removeClass(ele, classes[i])) {
+        count++
+      }
+    }
+  }
+  return count
 }
 
 export function buildErrorMessage(errors: ErrorMessage[]): string {
