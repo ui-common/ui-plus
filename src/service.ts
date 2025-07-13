@@ -1,5 +1,5 @@
 import { Locale } from "./resources"
-import { decodeFromForm, getValue } from "./ui"
+import { getValue } from "./ui"
 import {
   currencyOnBlur,
   currencyOnFocus,
@@ -19,9 +19,6 @@ import { buildErrorMessage, ErrorMessage, removeError, removeFormError, showForm
 export class UIService {
   getValue(el: HTMLInputElement, locale?: Locale, currencyCode?: string): string | number | boolean | null {
     return getValue(el, locale, currencyCode)
-  }
-  decodeFromForm(form: HTMLFormElement, locale?: Locale, currencyCode?: string | null): any {
-    return decodeFromForm(form, locale, currencyCode)
   }
 
   validateForm(form?: HTMLFormElement, locale?: Locale, focusFirst?: boolean, scroll?: boolean): boolean {

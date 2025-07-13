@@ -28,6 +28,18 @@ const r3 = new RegExp("&", "gi")
 const r4 = new RegExp(">", "gi")
 const r5 = new RegExp("<", "gi")
 
+export function formatText(...args: any[]): string {
+  let formatted = args[0]
+  if (!formatted || formatted === "") {
+    return ""
+  }
+  for (let i = 1; i < args.length; i++) {
+    const regexp = new RegExp("\\{" + (i - 1) + "\\}", "gi")
+    formatted = formatted.replace(regexp, args[i])
+  }
+  return formatted
+}
+
 export function isValidForm(form: HTMLFormElement, focusFirst?: boolean, scroll?: boolean): boolean {
   const valid = true
   let i = 0
@@ -173,12 +185,12 @@ export function checkRequired(ele: HTMLInputElement, label?: string): boolean {
         label = resources.label(ele)
       }
       const errorKey = ele.nodeName === "SELECT" ? "error_select_required" : "error_required"
-      const r = resources.resource
-      let s = r.value(errorKey)
+      const r = resources.resource.resource()
+      let s = r[errorKey]
       if (!s || s === "") {
-        s = r.value("error_required")
+        s = r.error_required
       }
-      const msg = r.format(s, label)
+      const msg = formatText(s, label)
       addErrorMessage(ele, msg)
       return true
     }
@@ -191,11 +203,11 @@ export function checkMaxLength(ele: HTMLInputElement, label?: string): boolean {
     const value = ele.value
     const imaxlength = parseInt(maxlength, 10)
     if (value.length > imaxlength) {
-      const r = resources.resource
+      const r = resources.resource.resource()
       if (!label || label === "") {
         label = resources.label(ele)
       }
-      const msg = r.format(r.value("error_maxlength"), label, maxlength)
+      const msg = formatText(r.error_maxlength, label, maxlength)
       addErrorMessage(ele, msg)
       return true
     }
@@ -209,11 +221,11 @@ export function checkMinLength(ele: HTMLInputElement, label?: string): boolean {
     const value = ele.value
     const iminlength = parseInt(minlength, 10)
     if (value.length < iminlength) {
-      const r = resources.resource
+      const r = resources.resource.resource()
       if (!label || label === "") {
         label = resources.label(ele)
       }
-      const msg = r.format(r.value("error_minlength"), label, minlength)
+      const msg = formatText(r.error_minlength, label, minlength)
       addErrorMessage(ele, msg)
       return true
     }
@@ -264,7 +276,7 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
   if (!value || value === "") {
     return true
   }
-  const r = resources.resource
+  const r = resources.resource.resource()
   if (checkMaxLength(ele, l)) {
     return false
   }
@@ -275,7 +287,7 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
   if (minlength !== null && !isNaN(minlength as any)) {
     const iminlength = parseInt(minlength, 10)
     if (value.length < iminlength) {
-      const msg = r.format(r.value("error_minlength"), l, minlength)
+      const msg = formatText(r.error_minlength, l, minlength)
       addErrorMessage(ele, msg)
       return false
     }
@@ -312,7 +324,7 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
     if (!isValidPattern(value, pattern, flags)) {
       const resource_key = ele.getAttribute("resource-key") || ele.getAttribute("config-pattern-error-key")
       if (resource_key) {
-        const msg = r.format(r.value(resource_key), l)
+        const msg = formatText(r.resource_key, l)
         addErrorMessage(ele, msg)
       } else {
         addErrorMessage(ele, "Pattern error")
@@ -322,7 +334,7 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
   }
   if (datatype2 === "email") {
     if (value.length > 0 && !isEmail(value)) {
-      const msg = r.format(r.value("error_email"), l)
+      const msg = formatText(r.error_email, l)
       addErrorMessage(ele, msg)
       return false
     }
@@ -354,12 +366,12 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
       value = value.replace("%", "")
     }
     if (isNaN(value as any)) {
-      const msg = r.format(r.value("error_number"), l)
+      const msg = formatText(r.error_number, l)
       addErrorMessage(ele, msg)
       return false
     }
     if (datatype2 === "int" && !isDigitOnly(value)) {
-      const msg = r.format(r.value("error_number"), l)
+      const msg = formatText(r.error_number, l)
       addErrorMessage(ele, msg)
       return false
     }
@@ -369,12 +381,12 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
     if (smin !== null && smin.length > 0) {
       min = parseFloat(smin)
       if (n < min) {
-        let msg = r.format(r.value("error_min"), l, min)
+        let msg = formatText(r.error_min, l, min)
         const smaxd = ele.getAttribute("max")
         if (smaxd !== null && smaxd.length > 0) {
           const maxd = parseFloat(smaxd)
           if (maxd === min) {
-            msg = r.format(r.value("error_equal"), l, maxd)
+            msg = formatText(r.error_equal, l, maxd)
           }
         }
         addErrorMessage(ele, msg)
@@ -385,9 +397,9 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
     if (smax !== null && smax.length > 0) {
       const max = parseFloat(smax)
       if (n > max) {
-        let msg = r.format(r.value("error_max"), l, max)
+        let msg = formatText(r.error_max, l, max)
         if (!min && max === min) {
-          msg = r.format(r.value("error_equal"), l)
+          msg = formatText(r.error_equal, l)
         }
         addErrorMessage(ele, msg)
         return false
@@ -413,7 +425,7 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
           const min2 = parseFloat(smin2)
           if (n < min2) {
             const minLabel = resources.label(ctrl2)
-            const msg = r.format(r.value("error_min"), l, minLabel)
+            const msg = formatText(r.error_min, l, minLabel)
             addErrorMessage(ele, msg)
             return false
           }
@@ -428,14 +440,14 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
         if (smin === "now") {
           const d = new Date()
           if (v < d) {
-            const msg = r.format(r.value("error_from_now"), l)
+            const msg = formatText(r.error_from_now, l)
             addErrorMessage(ele, msg)
             return false
           }
         } else if (smin === "tomorrow") {
           const d = addDays(trimTime(new Date()), 1)
           if (v < d) {
-            const msg = r.format(r.value("error_from_tomorrow"), l)
+            const msg = formatText(r.error_from_tomorrow, l)
             addErrorMessage(ele, msg)
             return false
           }
@@ -444,7 +456,7 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
           if (!isNaN(d.getTime())) {
             if (v < d) {
               const v2 = formatLongDateTime(d, "YYYY-MM-DD")
-              const msg = r.format(r.value("error_from"), l, v2)
+              const msg = formatText(r.error_from, l, v2)
               addErrorMessage(ele, msg)
               return false
             }
@@ -456,14 +468,14 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
         if (smax === "now") {
           const d = new Date()
           if (v > d) {
-            const msg = r.format(r.value("error_after_now"), l)
+            const msg = formatText(r.error_after_now, l)
             addErrorMessage(ele, msg)
             return false
           }
         } else if (smax === "tomorrow") {
           const d = addDays(trimTime(new Date()), 1)
           if (v > d) {
-            const msg = r.format(r.value("error_after_tomorrow"), l)
+            const msg = formatText(r.error_after_tomorrow, l)
             addErrorMessage(ele, msg)
             return false
           }
@@ -472,7 +484,7 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
           if (!isNaN(d.getTime())) {
             if (v > d) {
               const v2 = formatLongDateTime(d, "YYYY-MM-DD")
-              const msg = r.format(r.value("error_after"), l, v2)
+              const msg = formatText(r.error_after, l, v2)
               addErrorMessage(ele, msg)
               return false
             }
@@ -486,7 +498,7 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
           const mi = new Date(ctrl2.value)
           if (v < mi) {
             const minLabel = resources.label(ctrl2)
-            const msg = r.format(r.value("error_min"), l, minLabel)
+            const msg = formatText(r.error_min, l, minLabel)
             addErrorMessage(ele, msg)
             return false
           }
@@ -499,7 +511,7 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
           const mi = new Date(ctrl2.value)
           if (v <= mi) {
             const minLabel = resources.label(ctrl2)
-            const msg = r.format(r.value("error_after"), l, minLabel)
+            const msg = formatText(r.error_after, l, minLabel)
             addErrorMessage(ele, msg)
             return false
           }
@@ -524,7 +536,7 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
     const dt = resources.date(value, dateFormat) // moment(value, dateFormat).toDate(); // DateUtil.parse(value, dateFormat);
     if (!dt) {
       // (isDate === false) {
-      const msg = r.format(r.value("error_date"), l)
+      const msg = formatText(r.error_date, l)
       addErrorMessage(ele, msg)
       return false
     } else {
@@ -538,7 +550,7 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
             dmaxdate = new Date(strDate) // DateUtil.parse(strDate, 'yyyy-MM-dd');
           }
           if (dmaxdate && dt > dmaxdate) {
-            const msg = r.format(r.value("error_max_date"), l)
+            const msg = formatText(r.error_max_date, l)
             addErrorMessage(ele, msg)
             return false
           }
@@ -550,7 +562,7 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
             dmindate = new Date(strDate) // DateUtil.parse(strDate, 'yyyy-MM-dd');
           }
           if (dmindate && dt < dmindate) {
-            const msg = r.format(r.value("error_min_date"), l)
+            const msg = formatText(r.error_min_date, l)
             addErrorMessage(ele, msg)
             return false
           }
@@ -559,58 +571,58 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
     }
   } else if (datatype2 === "url") {
     if (!isUrl(value)) {
-      const msg = r.format(r.value("error_url"), l)
+      const msg = formatText(r.error_url, l)
       addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "phone") {
     const phoneStr = formatter.removePhoneFormat(value)
     if (!tel.isPhone(phoneStr)) {
-      const msg = r.format(r.value("error_phone"), l)
+      const msg = formatText(r.error_phone, l)
       addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "fax") {
     const phoneStr = formatter.removeFaxFormat(value)
     if (!tel.isFax(phoneStr)) {
-      const msg = r.format(r.value("error_fax"), l)
+      const msg = formatText(r.error_fax, l)
       addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "code") {
     if (!isValidCode(value)) {
-      const msg = r.format(r.value("error_code"), l)
+      const msg = formatText(r.error_code, l)
       addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "dash-code") {
     if (!isDashCode(value)) {
-      const msg = r.format(r.value("error_dash_code"), l)
+      const msg = formatText(r.error_dash_code, l)
       addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "digit") {
     if (!isDigitOnly(value)) {
-      const msg = r.format(r.value("error_digit"), l)
+      const msg = formatText(r.error_digit, l)
       addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "dash-digit") {
     if (!isDashDigit(value)) {
-      const msg = r.format(r.value("error_dash_digit"), l)
+      const msg = formatText(r.error_dash_digit, l)
       addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "routing-number") {
     // business-tax-id
     if (!isDashDigit(value)) {
-      const msg = r.format(r.value("error_routing_number"), l)
+      const msg = formatText(r.error_routing_number, l)
       addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "check-number") {
     if (!isCheckNumber(value)) {
-      const msg = r.format(r.value("error_check_number"), l)
+      const msg = formatText(r.error_check_number, l)
       addErrorMessage(ele, msg)
       return false
     }
@@ -620,19 +632,19 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
       countryCode = countryCode.toUpperCase()
       if (countryCode === "US" || countryCode === "USA") {
         if (!isUSPostalCode(value)) {
-          const msg = r.format(r.value("error_us_post_code"), l)
+          const msg = formatText(r.error_us_post_code, l)
           addErrorMessage(ele, msg)
           return false
         }
       } else if (countryCode === "CA" || countryCode === "CAN") {
         if (!isCAPostalCode(value)) {
-          const msg = r.format(r.value("error_ca_post_code"), l)
+          const msg = formatText(r.error_ca_post_code, l)
           addErrorMessage(ele, msg)
           return false
         }
       } else {
         if (!isDashCode(value)) {
-          const msg = r.format(r.value("error_post_code"), l)
+          const msg = formatText(r.error_post_code, l)
           addErrorMessage(ele, msg)
           return false
         }
@@ -640,13 +652,13 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
     }
   } else if (datatype2 === "ipv4") {
     if (!isIPv4(value)) {
-      const msg = r.format(r.value("error_ipv4"), l)
+      const msg = formatText(r.error_ipv4, l)
       addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "ipv6") {
     if (!isIPv6(value)) {
-      const msg = r.format(r.value("error_ipv6"), l)
+      const msg = formatText(r.error_ipv6, l)
       addErrorMessage(ele, msg)
       return false
     }

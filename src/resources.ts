@@ -1,6 +1,10 @@
+export interface StringMap {
+  [key: string]: string;
+}
 export interface ResourceService {
-  value(key: string, param?: any): string
-  format(f: string, ...args: any[]): string
+  resource(): StringMap;
+  // value(key: string, param?: any): string
+  // format(f: string, ...args: any[]): string
 }
 export interface Currency {
   code?: string
@@ -71,7 +75,8 @@ export class resources {
         key = input.getAttribute('resource-key');
       }*/
       if (key !== null && key.length > 0) {
-        l = resources.resource.value(key)
+        const r = resources.resource.resource()
+        l = r.key
         ele.setAttribute("label", l)
         return l
       } else {

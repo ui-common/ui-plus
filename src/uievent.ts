@@ -2,7 +2,7 @@ import { isEmail, isIPv4, isIPv6, isUrl, isValidPattern, tel } from "validation-
 import { formatter } from "./formatter"
 import { Locale, resources } from "./resources"
 import { element, trim } from "./ui"
-import { addErrorMessage, checkMaxLength, checkMinLength, checkRequired, removeError, validateElement } from "./uivalidator"
+import { addErrorMessage, checkMaxLength, checkMinLength, checkRequired, formatText, removeError, validateElement } from "./uivalidator"
 
 // tslint:disable-next-line:class-name
 export class uievent {
@@ -154,8 +154,8 @@ export function checkOnBlur(event: Event | any, key: string, check: any, formatF
     }
     if (value.length > 0 && !check(value)) {
       const label = resources.label(ctrl)
-      const r = resources.resource
-      const msg = r.format(r.value(key), label)
+      const r = resources.resource.resource()
+      const msg = formatText(r[key], label)
       addErrorMessage(ctrl, msg)
     }
   }, 40)
@@ -209,8 +209,8 @@ export function patternOnBlur(event: Event | any): void {
         const resource_key = ctrl.getAttribute("resource-key") || ctrl.getAttribute("config-pattern-error-key")
         if (resource_key && !isValidPattern(value, pattern, flags)) {
           const label = resources.label(ctrl)
-          const r = resources.resource
-          const msg = r.format(r.value(resource_key), label)
+          const r = resources.resource.resource()
+          const msg = formatText(r[resource_key], label)
           addErrorMessage(ctrl, msg)
         }
       }
@@ -347,8 +347,8 @@ function baseNumberOnBlur(event: Event | any, locale: Locale, isCurrency: boolea
     }
     if (value.length > 0) {
       if (isNaN(value2 as any)) {
-        const r = resources.resource
-        const msg = r.format(r.value("error_number"), label)
+        const r = resources.resource.resource()
+        const msg = formatText(r.error_number, label)
         addErrorMessage(ctrl, msg)
         return
       }
@@ -391,16 +391,16 @@ function formatNumber(ctrl: HTMLInputElement, v: number, locale?: Locale): strin
 }
 function validateMinMax(ctrl: any, n: number, label: string, locale: Locale): boolean {
   let min = ctrl.getAttribute("min")
-  const r = resources.resource
+  const r = resources.resource.resource()
   if (min !== null && min.length > 0) {
     min = parseFloat(min)
     if (n < min) {
-      let msg = r.format(r.value("error_min"), label, min)
+      let msg = formatText(r.error_min, label, min)
       let maxd = ctrl.getAttribute("max")
       if (maxd && maxd.length > 0) {
         maxd = parseFloat(maxd)
         if (maxd === min) {
-          msg = r.format(r.value("error_equal"), label, maxd)
+          msg = formatText(r.error_equal, label, maxd)
         }
       }
       addErrorMessage(ctrl, msg)
@@ -411,9 +411,9 @@ function validateMinMax(ctrl: any, n: number, label: string, locale: Locale): bo
   if (max !== null && max.length > 0) {
     max = parseFloat(max)
     if (n > max) {
-      let msg = r.format(r.value("error_max"), label, max)
+      let msg = formatText(r.error_max, label, max)
       if (min && max === min) {
-        msg = r.format(r.value("error_equal"), label, max)
+        msg = formatText(r.error_equal, label, max)
       }
       addErrorMessage(ctrl, msg)
       return false
@@ -438,7 +438,7 @@ function validateMinMax(ctrl: any, n: number, label: string, locale: Locale): bo
           const min2 = parseFloat(smin2)
           if (n < min2) {
             const minLabel = resources.label(ctrl2)
-            const msg = r.format(r.value("error_min"), label, minLabel)
+            const msg = formatText(r.error_min, label, minLabel)
             addErrorMessage(ctrl, msg)
             return false
           }
