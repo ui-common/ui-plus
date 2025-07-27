@@ -101,7 +101,7 @@ export function validateForm(form?: HTMLFormElement | null, locale?: Locale, foc
   return valid
 }
 export function showFormError(
-  form?: HTMLFormElement,
+  form?: HTMLFormElement | null,
   errors?: ErrorMessage[],
   focusFirst?: boolean,
   directParent?: boolean,
@@ -767,7 +767,7 @@ export function addErrorMessage(ele: HTMLInputElement, msg?: string, directParen
   }
 }
 
-export function removeFormError(form: HTMLFormElement): void {
+export function removeFormError(form?: HTMLFormElement | null): void {
   if (form) {
     const len = form.length
     for (let i = 0; i < len; i++) {
@@ -809,7 +809,7 @@ export const removeErrors = (ids?: string | string[]) => {
   }
 }
 const errorArr = ["valid", "invalid", "ng-invalid", "ng-touched"]
-export function removeError(ele: HTMLInputElement, directParent?: boolean): void {
+export function removeError(ele?: HTMLInputElement | null, directParent?: boolean): void {
   if (!ele) {
     return
   }

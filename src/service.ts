@@ -21,16 +21,16 @@ export class UIService {
     return getValue(el, locale, currencyCode)
   }
 
-  validateForm(form?: HTMLFormElement, locale?: Locale, focusFirst?: boolean, scroll?: boolean): boolean {
+  validateForm(form?: HTMLFormElement | null, locale?: Locale, focusFirst?: boolean, scroll?: boolean): boolean {
     return validateForm(form, locale, focusFirst, scroll)
   }
-  removeFormError(form: HTMLFormElement): void {
+  removeFormError(form?: HTMLFormElement | null): void {
     removeFormError(form)
   }
-  removeError(el: HTMLInputElement): void {
+  removeError(el?: HTMLInputElement | null): void {
     removeError(el)
   }
-  showFormError(form?: HTMLFormElement, errors?: ErrorMessage[], focusFirst?: boolean): ErrorMessage[] {
+  showFormError(form?: HTMLFormElement | null, errors?: ErrorMessage[], focusFirst?: boolean): ErrorMessage[] {
     return showFormError(form, errors, focusFirst)
   }
   buildErrorMessage(errors: ErrorMessage[]): string {
