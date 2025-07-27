@@ -62,7 +62,7 @@ export function isValidForm(form: HTMLFormElement, focusFirst?: boolean, scroll?
   }
   return valid
 }
-export function validateForm(form?: HTMLFormElement, locale?: Locale, focusFirst?: boolean, scroll?: boolean, includeReadOnly?: boolean): boolean {
+export function validateForm(form?: HTMLFormElement | null, locale?: Locale, focusFirst?: boolean, scroll?: boolean, includeReadOnly?: boolean): boolean {
   if (!form) {
     return true
   }

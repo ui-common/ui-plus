@@ -1,4 +1,4 @@
-export function initForm(form?: HTMLFormElement, initMat?: (f: HTMLFormElement) => void): HTMLFormElement | undefined {
+export function initForm(form?: HTMLFormElement | null, initMat?: (f: HTMLFormElement) => void): HTMLFormElement | undefined | null {
   if (form) {
     setTimeout(() => {
       if (initMat) {
