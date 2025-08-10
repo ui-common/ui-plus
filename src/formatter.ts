@@ -7,10 +7,10 @@ const usd: Currency = {
 }
 const r3 = /,/g
 export function removePhoneFormat(phone: string): string {
-  return formatter.removePhoneFormat(phone)
+  return phone ? phone.replace(formatter.phone, "") : phone
 }
 export function removeFaxFormat(fax: string): string {
-  return formatter.removeFaxFormat(fax)
+  return fax ? fax.replace(formatter.fax, "") : fax
 }
 export function formatPhone(phone?: string | null): string {
   return formatter.formatPhone(phone)
@@ -31,21 +31,8 @@ export function format(v?: number | null, fmt?: string, locale?: Locale): string
 export class formatter {
   // private static _preg = / |\+|\-|\.|\(|\)/g;
   static phone = / |\-|\.|\(|\)/g
+  static fax = / |\-|\.|\(|\)/g
   static usPhone = /(\d{3})(\d{3})(\d{4})/
-  static removePhoneFormat(phone: string): string {
-    if (phone) {
-      return phone.replace(formatter.phone, "")
-    } else {
-      return phone
-    }
-  }
-  static removeFaxFormat(fax: string): string {
-    if (fax) {
-      return fax.replace(formatter.phone, "")
-    } else {
-      return fax
-    }
-  }
   static formatPhone(phone?: string | null): string {
     if (!phone) {
       return ""
@@ -53,7 +40,7 @@ export class formatter {
     // reformat phone number
     // 555 123-4567 or (+1) 555 123-4567
     let s = phone
-    const x = formatter.removePhoneFormat(phone)
+    const x = removePhoneFormat(phone)
     if (x.length === 10) {
       const USNumber = x.match(formatter.usPhone)
       if (USNumber != null) {
@@ -79,7 +66,7 @@ export class formatter {
     // reformat phone number
     // 035-456745 or 02-1234567
     let s = fax
-    const x = formatter.removePhoneFormat(fax)
+    const x = removeFaxFormat(fax)
     const l = x.length
     if (l <= 6) {
       s = x
@@ -177,7 +164,7 @@ export class formatter {
   }
 }
 function _formatNumber(v: number, scale?: number, d?: string, g?: string): string {
-  if (!v) {
+  if (v == null) {
     return ""
   }
   if (!d && !g) {

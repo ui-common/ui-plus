@@ -13,7 +13,7 @@ import {
   isValidPattern,
   tel,
 } from "validation-core"
-import { formatter } from "./formatter"
+import { formatter, removeFaxFormat, removePhoneFormat } from "./formatter"
 import { Locale, resources } from "./resources"
 import { element, getParentByNodeNameOrDataField } from "./ui"
 
@@ -576,14 +576,14 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
       return false
     }
   } else if (datatype2 === "phone") {
-    const phoneStr = formatter.removePhoneFormat(value)
+    const phoneStr = removePhoneFormat(value)
     if (!tel.isPhone(phoneStr)) {
       const msg = formatText(r.error_phone, l)
       addErrorMessage(ele, msg)
       return false
     }
   } else if (datatype2 === "fax") {
-    const phoneStr = formatter.removeFaxFormat(value)
+    const phoneStr = removeFaxFormat(value)
     if (!tel.isFax(phoneStr)) {
       const msg = formatText(r.error_fax, l)
       addErrorMessage(ele, msg)

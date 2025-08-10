@@ -1,5 +1,5 @@
 import { isEmail, isIPv4, isIPv6, isUrl, isValidPattern, tel } from "validation-core"
-import { formatter } from "./formatter"
+import { formatFax, formatPhone, formatter, removeFaxFormat, removePhoneFormat } from "./formatter"
 import { Locale, resources } from "./resources"
 import { element, trim } from "./ui"
 import { addErrorMessage, checkMaxLength, checkMinLength, checkRequired, formatText, removeError, validateElement } from "./uivalidator"
@@ -170,10 +170,10 @@ export function urlOnBlur(event: Event | any): void {
   checkOnBlur(event, "error_url", isUrl)
 }
 export function phoneOnBlur(event: Event | any): void {
-  checkOnBlur(event, "error_phone", tel.isPhone, formatter.removePhoneFormat)
+  checkOnBlur(event, "error_phone", tel.isPhone, formatPhone)
 }
 export function faxOnBlur(event: Event | any): void {
-  checkOnBlur(event, "error_fax", tel.isFax, formatter.removeFaxFormat)
+  checkOnBlur(event, "error_fax", tel.isFax, formatFax)
 }
 export function ipv4OnBlur(event: Event | any): void {
   checkOnBlur(event, "error_ipv4", isIPv4)
