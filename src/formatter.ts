@@ -132,7 +132,7 @@ export class formatter {
     return v
   }
   static formatNumber(v?: number | null, scale?: number, locale?: Locale): string {
-    if (v === undefined || v == null) {
+    if (v == null) {
       return ""
     }
     if (locale) {
@@ -142,7 +142,7 @@ export class formatter {
     }
   }
   static format(v?: number | null, fmt?: string, locale?: Locale): string {
-    if (v === undefined || v == null) {
+    if (v == null) {
       return ""
     }
     if (!fmt) {
@@ -163,7 +163,7 @@ export class formatter {
     }
   }
 }
-function _formatNumber(v: number, scale?: number, d?: string, g?: string): string {
+function _formatNumber(v?: number | null, scale?: number, d?: string, g?: string): string {
   if (v == null) {
     return ""
   }
