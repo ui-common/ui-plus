@@ -912,71 +912,67 @@ export function addSeconds(d: Date, n: number): Date {
 export function createDate(s: string): Date | undefined {
   return s.length === 0 ? undefined : new Date(s)
 }
-export function formatDate(d: Date | null | undefined, dateFormat?: string, full?: boolean, upper?: boolean): string {
-  if (!d) {
+
+export function formatDate(d: Date | null | undefined, format?: string): string {
+  if (!d || !format) {
     return ""
   }
-  let format = dateFormat && dateFormat.length > 0 ? dateFormat : "M/D/YYYY"
-  if (upper) {
-    format = format.toUpperCase()
-  }
-  let arr = ["", "", ""]
-  const items = format.split(/\/|\.| |-/)
-  let iday = items.indexOf("D")
-  let im = items.indexOf("M")
-  let iyear = items.indexOf("YYYY")
-  let fm = full ? full : false
-  let fd = full ? full : false
-  let fy = true
-  if (iday === -1) {
-    iday = items.indexOf("DD")
-    fd = true
-  }
-  if (im === -1) {
-    im = items.indexOf("MM")
-    fm = true
-  }
-  if (iyear === -1) {
-    iyear = items.indexOf("YY")
-    fy = full ? full : false
-  }
-  arr[iday] = getD(d.getDate(), fd)
-  arr[im] = getD(d.getMonth() + 1, fm)
-  arr[iyear] = getYear(d.getFullYear(), fy)
-  const s = detectSeparator(format)
-  const e = detectLastSeparator(format)
-  const l = items.length === 4 ? format[format.length - 1] : ""
-  return arr[0] + s + arr[1] + e + arr[2] + l
-}
-function detectSeparator(format: string): string {
-  const len = format.length
-  for (let i = 0; i < len; i++) {
-    const c = format[i]
-    if (!((c >= "A" && c <= "Z") || (c >= "a" && c <= "z"))) {
-      return c
+  const y = d.getFullYear()
+  const m = d.getMonth() + 1
+  const day = d.getDate()
+
+  let out = ""
+  let i = 0
+
+  while (i < format.length) {
+    const c = format.charCodeAt(i)
+
+    // yyyy / yy
+    if (c === 121 /* y */) {
+      const len = count(format, i, 121)
+      if (len >= 4) {
+        out += y.toString()
+        i += 4
+      } else {
+        out += shortYear(y)
+        i += 2
+      }
+      continue
     }
-  }
-  return "/"
-}
-function detectLastSeparator(format: string): string {
-  const len = format.length - 3
-  for (let i = len; i > -0; i--) {
-    const c = format[i]
-    if (!((c >= "A" && c <= "Z") || (c >= "a" && c <= "z"))) {
-      return c
+
+    // MM / M
+    if (c === 77 /* M */) {
+      const len = count(format, i, 77)
+      out += len >= 2 ? pad(m) : m.toString()
+      i += len >= 2 ? 2 : 1
+      continue
     }
+
+    // dd / d
+    if (c === 100 /* d */) {
+      const len = count(format, i, 100)
+      out += len >= 2 ? pad(day) : day.toString()
+      i += len >= 2 ? 2 : 1
+      continue
+    }
+
+    // literal char
+    out += format[i]
+    i++
   }
-  return "/"
+  return out
 }
-export function getYear(y: number, full?: boolean): string {
-  if (full || (y <= 99 && y >= -99)) {
-    return y.toString()
+function shortYear(y: number): string {
+  return (y % 100 + 100) % 100 < 10
+    ? "0" + ((y % 100 + 100) % 100)
+    : "" + ((y % 100 + 100) % 100)
+}
+function count(s: string, i: number, ch: number): number {
+  let n = 0
+  while (i + n < s.length && s.charCodeAt(i + n) === ch) {
+    n++
   }
-  const s = y.toString()
-  return s.substring(s.length - 2)
-}
-function getD(n: number, fu: boolean): string {
-  return fu ? pad(n) : n.toString()
+  return n
 }
 export function datetimeToString(date?: Date | string): string | undefined {
   if (!date || date === "") {
@@ -991,31 +987,31 @@ export function datetimeToString(date?: Date | string): string | undefined {
   const seconds = pad(d2.getSeconds())
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
 }
-export function formatDateTime(date: Date | null | undefined, dateFormat?: string, full?: boolean, upper?: boolean): string {
+export function formatDateTime(date: Date | null | undefined, dateFormat?: string): string {
   if (!date) {
     return ""
   }
-  const sd = formatDate(date, dateFormat, full, upper)
+  const sd = formatDate(date, dateFormat)
   if (sd.length === 0) {
     return sd
   }
   return sd + " " + formatTime(date)
 }
-export function formatLongDateTime(date: Date | null | undefined, dateFormat?: string, full?: boolean, upper?: boolean): string {
+export function formatLongDateTime(date: Date | null | undefined, dateFormat?: string): string {
   if (!date) {
     return ""
   }
-  const sd = formatDate(date, dateFormat, full, upper)
+  const sd = formatDate(date, dateFormat)
   if (sd.length === 0) {
     return sd
   }
   return sd + " " + formatLongTime(date)
 }
-export function formatFullDateTime(date: Date | null | undefined, dateFormat?: string, s?: string, full?: boolean, upper?: boolean): string {
+export function formatFullDateTime(date: Date | null | undefined, dateFormat?: string, s?: string): string {
   if (!date) {
     return ""
   }
-  const sd = formatDate(date, dateFormat, full, upper)
+  const sd = formatDate(date, dateFormat)
   if (sd.length === 0) {
     return sd
   }
