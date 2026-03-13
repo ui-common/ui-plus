@@ -13,7 +13,7 @@ import {
   isValidPattern,
   tel,
 } from "validation-core"
-import { formatter, removeFaxFormat, removePhoneFormat } from "./formatter"
+import { removeFaxFormat, removePhoneFormat } from "./formatter"
 import { Locale, resources } from "./resources"
 import { element, getParentByNodeNameOrDataField } from "./ui"
 
@@ -689,16 +689,18 @@ export function setValidControl(ctrl: HTMLInputElement): void {
     }
   }
 }
-export function addError(form: HTMLFormElement, name: string, msg: string, directParent?: boolean): boolean {
-  const len = form.length
-  for (let i = 0; i < len; i++) {
-    const ctrl = form[i] as HTMLInputElement
-    const nameAttr = ctrl.getAttribute("name")
-    const idAttr = ctrl.getAttribute("id")
-    const dataAttr = ctrl.getAttribute("data-field")
-    if (name && (nameAttr === name || idAttr === name || dataAttr === name)) {
-      addErrorMessage(ctrl, msg, directParent)
-      return true
+export function addError(form: HTMLFormElement | null | undefined, name: string, msg: string, directParent?: boolean): boolean {
+  if (form) {
+    const len = form.length
+    for (let i = 0; i < len; i++) {
+      const ctrl = form[i] as HTMLInputElement
+      const nameAttr = ctrl.getAttribute("name")
+      const idAttr = ctrl.getAttribute("id")
+      const dataAttr = ctrl.getAttribute("data-field")
+      if (name && (nameAttr === name || idAttr === name || dataAttr === name)) {
+        addErrorMessage(ctrl, msg, directParent)
+        return true
+      }
     }
   }
   return false

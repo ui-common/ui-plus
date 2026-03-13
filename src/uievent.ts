@@ -170,10 +170,10 @@ export function urlOnBlur(event: Event | any): void {
   checkOnBlur(event, "error_url", isUrl)
 }
 export function phoneOnBlur(event: Event | any): void {
-  checkOnBlur(event, "error_phone", tel.isPhone, formatPhone)
+  checkOnBlur(event, "error_phone", tel.isPhone, removePhoneFormat)
 }
 export function faxOnBlur(event: Event | any): void {
-  checkOnBlur(event, "error_fax", tel.isFax, formatFax)
+  checkOnBlur(event, "error_fax", tel.isFax, removeFaxFormat)
 }
 export function ipv4OnBlur(event: Event | any): void {
   checkOnBlur(event, "error_ipv4", isIPv4)

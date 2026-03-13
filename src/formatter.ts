@@ -6,11 +6,11 @@ const usd: Currency = {
   decimalDigits: 2,
 }
 const r3 = /,/g
-export function removePhoneFormat(phone: string): string {
-  return phone ? phone.replace(formatter.phone, "") : phone
+export function removePhoneFormat(phone?: string | null): string {
+  return formatter.removePhoneFormat(phone)
 }
-export function removeFaxFormat(fax: string): string {
-  return fax ? fax.replace(formatter.fax, "") : fax
+export function removeFaxFormat(fax?: string | null): string {
+  return formatter.removeFaxFormat(fax)
 }
 export function formatPhone(phone?: string | null): string {
   return formatter.formatPhone(phone)
@@ -33,6 +33,12 @@ export class formatter {
   static phone = / |\-|\.|\(|\)/g
   static fax = / |\-|\.|\(|\)/g
   static usPhone = /(\d{3})(\d{3})(\d{4})/
+  static removePhoneFormat(phone?: string | null): string {
+    return phone ? phone.replace(formatter.phone, "") : ""
+  }
+  static removeFaxFormat(fax?: string | null): string {
+    return fax ? fax.replace(formatter.fax, "") : ""
+  }
   static formatPhone(phone?: string | null): string {
     if (!phone) {
       return ""
