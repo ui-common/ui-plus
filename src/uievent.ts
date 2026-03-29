@@ -250,6 +250,31 @@ export function handleNumberFocus(ctrl: HTMLInputElement, v: string, locale: Loc
     ctrl.value = v
   }
 }
+export function removeSeparators(s?: string | null): string {
+  if (!s) return ""
+  const buf: string[] = []
+  let idx = 0
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i)
+
+    if (c === 45 || (c >= 48 && c <= 57)) {
+      buf[idx++] = s[i]
+    }
+  }
+  return buf.join("")
+}
+export function intOnFocus(event: Event | any): void {
+  const ctrl = event.currentTarget as HTMLInputElement
+  uievent.handleMaterialFocus(ctrl)
+  if (ctrl.readOnly || ctrl.disabled || ctrl.value.length === 0) {
+    return
+  } else {
+    const v = removeSeparators(ctrl.value)
+    if (!isNaN(v as any)) {
+      ctrl.value = v
+    }
+  }
+}
 export function numberOnFocus(event: Event | any, locale: Locale): void {
   const ctrl = event.currentTarget as HTMLInputElement
   uievent.handleMaterialFocus(ctrl)
