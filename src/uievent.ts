@@ -331,6 +331,39 @@ export function currencyOnFocus(event: Event | any, locale: Locale, c?: string):
 export function currencyOnBlur(event: Event | any, locale: Locale, currencyCode?: string, includingCurrencySymbol?: boolean): void {
   baseNumberOnBlur(event, locale, true, currencyCode, includingCurrencySymbol)
 }
+export function intOnBlur(event: Event | any, groupSeparator: string = ","): void {
+  const ctrl = event.currentTarget as HTMLInputElement
+  if (!ctrl || ctrl.readOnly || ctrl.disabled) {
+    return
+  }
+  materialOnBlur(event)
+  removeError(ctrl)
+  setTimeout(() => {
+    trim(ctrl)
+    const value = ctrl.value
+    const label = resources.label(ctrl)
+    if (checkRequired(ctrl, label)) {
+      return
+    }
+    if (value.length > 0) {
+      const value2 = removeSeparators(value)
+      if (isNaN(value2 as any)) {
+        const r = resources.resource.resource()
+        const msg = formatText(r.error_number, label)
+        addErrorMessage(ctrl, msg)
+        return
+      }
+      const n = parseFloat(value2)
+      if (validateIntMinMax(ctrl, n, label)) {
+        const r = formatInteger(n, groupSeparator)
+        if (r !== ctrl.value) {
+          ctrl.value = r
+        }
+        removeError(ctrl)
+      }
+    }
+  }, 40)
+}
 function baseNumberOnBlur(event: Event | any, locale: Locale, isCurrency: boolean, currencyCode?: string, includingCurrencySymbol?: boolean) {
   const ctrl = event.currentTarget as HTMLInputElement
   if (!ctrl || ctrl.readOnly || ctrl.disabled) {
@@ -472,4 +505,85 @@ function validateMinMax(ctrl: any, n: number, label: string, locale: Locale): bo
     }
   }
   return true
+}
+function validateIntMinMax(ctrl: any, n: number, label: string): boolean {
+  let min = ctrl.getAttribute("min")
+  const r = resources.resource.resource()
+  if (min !== null && min.length > 0) {
+    min = parseFloat(min)
+    if (n < min) {
+      let msg = formatText(r.error_min, label, min)
+      let maxd = ctrl.getAttribute("max")
+      if (maxd && maxd.length > 0) {
+        maxd = parseFloat(maxd)
+        if (maxd === min) {
+          msg = formatText(r.error_equal, label, maxd)
+        }
+      }
+      addErrorMessage(ctrl, msg)
+      return false
+    }
+  }
+  let max = ctrl.getAttribute("max")
+  if (max !== null && max.length > 0) {
+    max = parseFloat(max)
+    if (n > max) {
+      let msg = formatText(r.error_max, label, max)
+      if (min && max === min) {
+        msg = formatText(r.error_equal, label, max)
+      }
+      addErrorMessage(ctrl, msg)
+      return false
+    }
+  }
+  const minField = ctrl.getAttribute("min-field")
+  if (minField) {
+    const form = ctrl.form
+    if (form) {
+      const ctrl2 = element(form, minField)
+      if (ctrl2) {
+        let smin2 = removeSeparators(ctrl2.value) // const smin2 = ctrl2.value.replace(this._nreg, '');
+        if (smin2.length > 0 && !isNaN(smin2 as any)) {
+          const min2 = parseFloat(smin2)
+          if (n < min2) {
+            const minLabel = resources.label(ctrl2)
+            const msg = formatText(r.error_min, label, minLabel)
+            addErrorMessage(ctrl, msg)
+            return false
+          }
+        }
+      }
+    }
+  }
+  return true
+}
+export function formatInteger(v?: number | null, groupSeparator: string = ","): string {
+  if (v === null || v === undefined || !Number.isFinite(v)) {
+    return "";
+  }
+
+  const isNegative = v < 0;
+  let n = Math.abs(Math.trunc(v));
+
+  // Fast path for small numbers (no separator needed)
+  if (n < 1000) {
+    return isNegative ? `-${n}` : `${n}`;
+  }
+
+  let result = "";
+  let count = 0;
+
+  while (n > 0) {
+    const digit = n % 10;
+    n = (n / 10) | 0; // faster floor for positive integers
+
+    if (count > 0 && count % 3 === 0) {
+      result = groupSeparator + result;
+    }
+
+    result = digit + result;
+    count++;
+  }
+
+  return isNegative ? `-${result}` : result;
 }
