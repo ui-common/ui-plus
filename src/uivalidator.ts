@@ -338,7 +338,7 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
       addErrorMessage(ele, msg)
       return false
     }
-  } else if (datatype2 === "number" || datatype2 === "int" || datatype2 === "currency" || datatype2 === "string-currency" || datatype2 === "percentage") {
+  } else if (datatype2 === "number" || datatype2 === "integer" || datatype2 === "currency" || datatype2 === "string-currency" || datatype2 === "percentage") {
     if (datatype2 === "currency" || datatype2 === "string-currency") {
       let currencyCode = ele.getAttribute("currency-code")
       if (!currencyCode && ele.form) {
@@ -370,7 +370,7 @@ export function validateElement(ele: HTMLInputElement, locale?: Locale, includeR
       addErrorMessage(ele, msg)
       return false
     }
-    if (datatype2 === "int" && !isDigitOnly(value)) {
+    if (datatype2 === "integer" && !isDigitOnly(value)) {
       const msg = formatText(r.error_number, l)
       addErrorMessage(ele, msg)
       return false

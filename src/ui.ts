@@ -24,7 +24,7 @@ export function getValue(ctrl: HTMLInputElement, locale?: Locale, currencyCode?:
       }
     }
     let value = ctrl.value
-    if (type === "number" || type === "int" || type === "currency" || type === "string-currency" || type === "percentage") {
+    if (type === "number" || type === "integer" || type === "currency" || type === "string-currency" || type === "percentage") {
       if (type === "currency" || type === "string-currency") {
         let c = ctrl.getAttribute("currency-code")
         if (!c) {

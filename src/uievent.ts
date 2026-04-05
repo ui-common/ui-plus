@@ -263,7 +263,7 @@ export function removeSeparators(s?: string | null): string {
   }
   return buf.join("")
 }
-export function intOnFocus(event: Event | any): void {
+export function integerOnFocus(event: Event | any): void {
   const ctrl = event.currentTarget as HTMLInputElement
   uievent.handleMaterialFocus(ctrl)
   if (ctrl.readOnly || ctrl.disabled || ctrl.value.length === 0) {
@@ -331,7 +331,7 @@ export function currencyOnFocus(event: Event | any, locale: Locale, c?: string):
 export function currencyOnBlur(event: Event | any, locale: Locale, currencyCode?: string, includingCurrencySymbol?: boolean): void {
   baseNumberOnBlur(event, locale, true, currencyCode, includingCurrencySymbol)
 }
-export function intOnBlur(event: Event | any, groupSeparator: string = ","): void {
+export function integerOnBlur(event: Event | any, groupSeparator: string = ","): void {
   const ctrl = event.currentTarget as HTMLInputElement
   if (!ctrl || ctrl.readOnly || ctrl.disabled) {
     return
